@@ -1,0 +1,36 @@
+.button {
+  display: inline-block;
+  /* background-color: #eee; */
+  background-color: rgba(0, 0, 0, 0.06);
+  border: 0;
+  border-radius: 100px;
+  padding: 0 1rem;
+  /* box-shadow: 0 0 15px rgba(0,0,0,0.1); */
+  transition: filter 200ms;
+  -webkit-appearance: none;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  font-family: inherit;
+  min-height: 35px;
+  color: inherit !important;
+}
+
+.button:hover {
+  /* box-shadow: 0 0 15px rgba(0,0,0,0.2); */
+  filter: brightness(0.9);
+}
+
+.button > * {
+  margin: 0.5rem 0;
+}
+
+.iconButton {
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.iconButton > * {
+  margin: 0;
+}

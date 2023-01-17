@@ -1,0 +1,16 @@
+.input {
+  /* width: 100%; */
+  padding: 0.75rem 1rem;
+  /* border: 1px solid #000; */
+  border: none;
+  /* background-color: #ebedf0; */
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 7.5px;
+  font-size: 1rem;
+  transition: 200ms;
+  font-family: inherit;
+  /* margin-bottom: 0.5rem; */
+}
+.label {
+  margin-bottom: 0.5rem;
+}
