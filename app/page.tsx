@@ -1,9 +1,10 @@
 "use client";
 import { useState } from 'react'
-import { LinkButton, IconButton } from '../components/ui/button'
+import Button, { IconButton } from '../components/ui/button'
 import Input from '../components/ui/input'
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import {app} from '../components/data/firebase'
+import {useRouter} from 'next/navigation'
 
 import Icon from '@mdi/react'
 import { mdiArrowRightCircle } from '@mdi/js'
@@ -14,6 +15,8 @@ export default function Home() {
   const auth = getAuth(app);
   signInAnonymously(auth);
 
+  const router = useRouter();
+
 
   return (
     <div style={{
@@ -23,7 +26,7 @@ export default function Home() {
       alignItems: 'center',
       minHeight: '90vh'
     }}>
-      <h1>Class Connect</h1>
+      <h1>SpeakEasy</h1>
       <div style={{
         display: 'flex',
         flexDirection: 'row',
@@ -42,7 +45,13 @@ export default function Home() {
         </IconButton>
       </div>
       <p>OR</p>
-      <LinkButton href='/create'><p>Create a Room</p></LinkButton>
+      <Button onClick={() => {
+        (async () => {
+          const data = await fetch('/api/create-room');
+          const jsonData = await data.json();
+          jsonData.code && router.push(`/${jsonData.code}`);
+        })();
+      }}><p>Create a Room</p></Button>
     </div>
   )
 }
