@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { ref, get } from 'firebase/database'
-import { db } from '../../components/data/firebase'
+import { ref, get, getDatabase } from 'firebase/database'
+import { app } from '../../components/data/firebase'
 
 type Data = {
   code: string
@@ -22,6 +22,7 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
 
+  const db = getDatabase(app);
   let roomExists = true;
   let randomCode = '';
   while (roomExists) {

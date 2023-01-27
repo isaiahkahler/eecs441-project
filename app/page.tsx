@@ -2,8 +2,6 @@
 import { useState } from 'react'
 import Button, { IconButton } from '../components/ui/button'
 import Input from '../components/ui/input'
-import { getAuth, signInAnonymously } from 'firebase/auth'
-import {app} from '../components/data/firebase'
 import {useRouter} from 'next/navigation'
 
 import Icon from '@mdi/react'
@@ -12,8 +10,6 @@ import { mdiArrowRightCircle } from '@mdi/js'
 export default function Home() {
 
   const [code, setCode] = useState('');
-  const auth = getAuth(app);
-  signInAnonymously(auth);
 
   const router = useRouter();
 
