@@ -6,13 +6,31 @@ import {useRouter} from 'next/navigation'
 
 import Icon from '@mdi/react'
 import { mdiArrowRightCircle } from '@mdi/js'
+import { getAuth, signInAnonymously } from 'firebase/auth'
+import { app } from '@/components/data/firebase'
 
 export default function Home() {
 
   const [code, setCode] = useState('');
 
   const router = useRouter();
+  const auth = getAuth(app);
 
+  const handleCreateRoom = async () => {
+    await signInAnonymously(auth);
+    if(!auth.currentUser) {
+      console.error('couldn\'t sign in')
+      return;
+    }
+    const token = await auth.currentUser.getIdToken();
+    const data = await fetch('/api/create-room', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const jsonData = await data.json();
+    jsonData.code && router.push(`/${jsonData.code}`);
+  }
 
   return (
     <div style={{
@@ -22,7 +40,7 @@ export default function Home() {
       alignItems: 'center',
       minHeight: '90vh'
     }}>
-      <h1>SpeakEasy</h1>
+      <h1>SpeakUp!</h1>
       <div style={{
         display: 'flex',
         flexDirection: 'row',
@@ -34,20 +52,14 @@ export default function Home() {
           placeholder='Class Code'
           maxLength={6}
           value={code}
-          onChange={(e) => setCode(e.target.value.replace(/[^a-z]/i, ''))}
+          onChange={(e) => setCode(e.target.value.replace(/[^a-z]/i, '').toUpperCase())}
         />
         <IconButton href={`/${code}`}>
           <Icon path={mdiArrowRightCircle} size={1} />
         </IconButton>
       </div>
       <p>OR</p>
-      <Button onClick={() => {
-        (async () => {
-          const data = await fetch('/api/create-room');
-          const jsonData = await data.json();
-          jsonData.code && router.push(`/${jsonData.code}`);
-        })();
-      }}><p>Create a Room</p></Button>
+      <Button onClick={handleCreateRoom}><p>Create a Room</p></Button>
     </div>
   )
 }

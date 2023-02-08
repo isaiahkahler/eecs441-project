@@ -8,6 +8,7 @@ interface GameState {
   expiration: number,
   queue: string[],
   exitQueue: string[],
+  owner: string
 }
 
 interface GlobalState {
