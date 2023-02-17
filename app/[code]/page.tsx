@@ -34,9 +34,6 @@ export default function ClassClient() {
 
   const user = useStore(state => state.user);
 
-  const [subscription, setSubscription] = useState<Unsubscribe | null>(null);
-
-
   // effect: sign in the user with an anonymous account
   useEffect(() => {
     console.log('signing in')

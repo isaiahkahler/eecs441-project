@@ -8,8 +8,6 @@ import { ref, get, set } from 'firebase/database'
 import { initializeApp, cert, getApp, App } from 'firebase-admin/app'
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth'
 import { getDatabase } from 'firebase-admin/database'
-import * as serviceAccount from "../../class-connect-f7b87-firebase-adminsdk-e6e6u-7b597ba335.json";
-
 
 type Data = {
   code: string
@@ -28,7 +26,18 @@ function makeid(length: number) {
 let app: App | null = null;
 try {
   app = initializeApp({
-    credential: cert(serviceAccount as any),
+    credential: cert({
+      type: "service_account",
+      project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+      client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
+      auth_uri: "https://accounts.google.com/o/oauth2/auth",
+      token_uri: "https://oauth2.googleapis.com/token",
+      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+      client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT_URL
+    } as any),
     databaseURL: "https://class-connect-f7b87-default-rtdb.firebaseio.com"
   });
 } catch (error) {

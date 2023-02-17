@@ -2,7 +2,7 @@ import { app } from "@/components/data/firebase";
 import Button from "@/components/ui/button";
 import CustomInput from "@/components/ui/input";
 import { User } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Room } from "./page";
 
@@ -25,6 +25,22 @@ export default function ParticipantView(props: ParticipantViewProps) {
     set(ref(database, `rooms/${code}/participants/${participant.uid}`), _name);
   };
 
+  const raiseLowerHand = () => {
+    if (!room.queue) {
+      set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
+      return;
+    }
+
+    // participant is in queue, lower hand
+    if(participant.uid in room.queue) {
+      remove(ref(database, `rooms/${code}/queue/${participant.uid}`));
+
+    } else {
+      // participant is not in queue, add to queue 
+      set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
+    }
+  }
+
   // get or change name from the list of participants, if the user already joined 
   useEffect(() => {
     if(!room.participants) return;
@@ -39,12 +55,13 @@ export default function ParticipantView(props: ParticipantViewProps) {
   return (
     <>
       <h1>Client View</h1>
-      <p>participants:</p>
+      <h2>participants:</h2>
       {room && room.participants && Object.entries(room.participants).map(([uid, name]) => <p key={uid}>{name}</p>)}
-      <button onClick={() => {
-        console.log('go do')
-        alert(participant.uid)
-      }}><p>click</p></button>
+      <h2>queue:</h2>
+      
+      {room.queue && Object.entries(room.queue).sort((a,b) => a[1] - b[1]).map(([uid, time]) => {return (<li key={uid}>{room.participants && room.participants[uid]}</li>)})}
+
+      <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
     </>
   );
 }
