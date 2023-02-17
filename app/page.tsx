@@ -52,7 +52,7 @@ export default function Home() {
           placeholder='Class Code'
           maxLength={6}
           value={code}
-          onChange={(e) => setCode(e.target.value.replace(/[^a-z]/i, '').toUpperCase())}
+          onChange={(e) => setCode((e.target as HTMLInputElement).value.replace(/[^a-z]/i, '').toUpperCase())}
         />
         <IconButton href={`/${code}`}>
           <Icon path={mdiArrowRightCircle} size={1} />
