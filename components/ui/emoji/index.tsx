@@ -13,8 +13,11 @@ interface EmojiMenuProps {
   emojis: string[]
 }
 
-const handleEmitEmoji = async () => {
-  return;
+function createEmojiHandler(emoji: String) {
+    return async () => {
+        console.log(emoji);
+        return emoji
+    }
 }
 
 export default function EmojiMenu(props: EmojiMenuProps) {
@@ -23,7 +26,7 @@ export default function EmojiMenu(props: EmojiMenuProps) {
   const emojiElements = emojis.map((emoji) => {
     const emojiSrc = emoji === 'kevinhart' ? kevinhart : swagEmoji;
     return (
-        <Button className={styles.emojiButton} key={emoji}>
+        <Button className={styles.emojiButton} key={emoji} onClick={createEmojiHandler(emoji)}>
           <Image src={emojiSrc} alt={emoji} height={50} width={50} />
         </Button>
       );
