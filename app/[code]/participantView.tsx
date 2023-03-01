@@ -64,7 +64,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
       <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
 
-      <EmojiMenu participant={participant} emojis={['swagEmoji']} />
+      <EmojiMenu participant={participant} emojis={['swagEmoji', 'kevinhart']} />
 
 
     </>
