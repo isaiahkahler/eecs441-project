@@ -5,9 +5,8 @@ import Button from '@/components/ui/button'
 import { User } from "firebase/auth"
 
 interface EmojiMenuProps {
-  participant: User, // believe this will be necessary?
-  // of course reactions could be anonymous for first implementation
-  emojis: string[] // this will match up to image in imgs
+  participant: User,
+  emojis: string[]
 }
 
 const handleEmitEmoji = async () => {
@@ -15,11 +14,16 @@ const handleEmitEmoji = async () => {
 }
 
 export default function EmojiMenu(props: EmojiMenuProps) {
-  /*
-  Will have a bunch of buttons to emit emojis
-  */
+  const { emojis } = props;
+
+  const emojiElements = emojis.map((emoji) => {
+    const emojiSrc = `@/components/ui/emoji/imgs/${emoji}.jpeg`;
+    return <img src={emojiSrc} alt={emoji} key={emoji} />;
+  });
+
   return (
-    <>
-    </>
+    <div className={styles.emojiMenu}>
+      {emojiElements}
+    </div>
   )
 }
