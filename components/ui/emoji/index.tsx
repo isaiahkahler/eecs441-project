@@ -5,10 +5,6 @@ import Link, { LinkProps } from 'next/link'
 import Button from '@/components/ui/button'
 import { User } from "firebase/auth"
 
-// for nextJS images have to be imported,
-// not done right in src
-// this may need to be changed for replacing images
-// with buttons but for now this will work
 import kevinhart from '@/components/ui/emoji/imgs/kevinhart.jpeg'
 import swagEmoji from '@/components/ui/emoji/imgs/swagEmoji.jpeg'
 
