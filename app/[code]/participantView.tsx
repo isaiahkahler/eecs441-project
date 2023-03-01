@@ -5,6 +5,7 @@ import { User } from "firebase/auth";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Room } from "./page";
+import EmojiMenu from "@/components/ui/emoji";
 
 
 interface ParticipantViewProps {
@@ -62,6 +63,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
       {room.queue && Object.entries(room.queue).sort((a,b) => a[1] - b[1]).map(([uid, time]) => {return (<li key={uid}>{room.participants && room.participants[uid]}</li>)})}
 
       <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
+
+      <EmojiMenu participant={participant} emojis={['swagEmoji']} />
+
+
     </>
   );
 }
