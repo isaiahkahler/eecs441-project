@@ -26,7 +26,11 @@ export default function EmojiMenu(props: EmojiMenuProps) {
 
   const emojiElements = emojis.map((emoji) => {
     const emojiSrc = emoji === 'kevinhart' ? kevinhart : swagEmoji;
-    return <Image src={emojiSrc} alt={emoji} key={emoji} height={50} width={50}/>;
+    return (
+        <Button className={styles.emojiButton} key={emoji}>
+          <Image src={emojiSrc} alt={emoji} height={50} width={50} />
+        </Button>
+      );
   });
 
   return (
