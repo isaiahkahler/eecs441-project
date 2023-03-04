@@ -42,7 +42,7 @@ try {
       client_id: certs.client_id,
       auth_uri: "https://accounts.google.com/o/oauth2/auth",
       token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+      auth_provider_x509_cert_url: certs.auth_provider_x509_cert_url,
       client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT_URL
     } as any),
     databaseURL: "https://class-connect-f7b87-default-rtdb.firebaseio.com"
