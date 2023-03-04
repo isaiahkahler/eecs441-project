@@ -1,0 +1,6 @@
+.emojiMenu {
+    display: flex;
+    background-color: lightblue;
+    flex-direction: column;
+    padding: 5px;
+}
