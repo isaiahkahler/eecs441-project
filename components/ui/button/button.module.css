@@ -1,7 +1,8 @@
 .button {
   display: inline-block;
   /* background-color: #eee; */
-  background-color: rgba(0, 0, 0, 0.06);
+  /* background-color: rgba(0, 0, 0, 0.06); */
+  background-color: #6173fb;
   border: 0;
   border-radius: 100px;
   padding: 0 1rem;
@@ -12,12 +13,18 @@
   font-size: 1rem;
   font-family: inherit;
   min-height: 35px;
-  color: inherit !important;
+  /* color: inherit !important; */
+  color: #fff;
 }
 
 .button:hover {
   /* box-shadow: 0 0 15px rgba(0,0,0,0.2); */
   filter: brightness(0.9);
+  color: #fff;
+}
+
+.button:visited {
+  color: #fff;
 }
 
 .button > * {
@@ -29,8 +36,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  fill: #fff;
 }
 
 .iconButton > * {
   margin: 0;
+}
+
+.button a {
+  color: #fff;
 }

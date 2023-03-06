@@ -1,3 +1,5 @@
+
+
 .input {
   /* width: 100%; */
   padding: 0.75rem 1rem;
@@ -13,4 +15,54 @@
 }
 .label {
   margin-bottom: 0.5rem;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+}
+.checkboxContainerInvalid {
+  color: red;
+}
+
+.checkbox {
+  appearance: none;
+  transition: 200ms;
+  margin-right: 0.5em;
+  cursor: pointer;
+  /* height: 1.5em;
+  width: 1.5em; */
+}
+
+.checkbox::after {
+  content: ' ';
+  display: block;
+  transition: 200ms;
+  height: 1.5em;
+  width: 1.5em;
+  border: 2px solid #6173fb;
+  border-radius: 2.5px;
+}
+
+.checkbox:checked::after {
+  content: ' ';
+  display: block;
+  transition: 200ms;
+  height: 1.5em;
+  width: 1.5em;
+  border: 2px solid #6173fb;
+  border-radius: 2.5px;
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M9%2C20.42L2.79%2C14.21L5.62%2C11.38L9%2C14.77L18.88%2C4.88L21.71%2C7.71L9%2C20.42Z%22%20%2F%3E%3C%2Fsvg%3E');
+  background-position: center;
+  background-color: #6173fb;
+
+}
+
+.checkboxInvalid::after {
+  border: 2px solid #cc0f35;
+}
+
+.checkboxInvalid:checked::after {
+  border: 2px solid #cc0f35;
+  background-color: #cc0f35;
 }

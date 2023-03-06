@@ -1,6 +1,6 @@
 import { app } from "@/components/data/firebase";
 import Button from "@/components/ui/button";
-import CustomInput from "@/components/ui/input";
+import Input from "@/components/ui/input";
 import { User } from "firebase/auth";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
@@ -83,7 +83,7 @@ function EnterNameForm (props: EnterNameFormProps) {
   return (
     <>
       <h1>enter your name</h1>
-      <CustomInput type='text' value={userInput} onChange={(e) => setUserInput((e.target as HTMLInputElement).value)} />
+      <Input type='text' value={userInput} onChange={(e) => setUserInput((e.target as HTMLInputElement).value)} />
       <Button onClick={() => setParticipantName(userInput)}><p>confirm</p></Button>
     </>
   );
