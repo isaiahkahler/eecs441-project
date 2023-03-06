@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import Button, { IconButton, LinkButton } from '../components/ui/button'
 import Input from '../components/ui/input'
-import {useRouter} from 'next/navigation'
 
 import Icon from '@mdi/react'
 import { mdiArrowRightCircle } from '@mdi/js'
@@ -15,24 +14,8 @@ export default function Home() {
 
   const [code, setCode] = useState('');
 
-  const router = useRouter();
   const auth = getAuth(app);
 
-  const handleCreateRoom = async () => {
-    await signInAnonymously(auth);
-    if(!auth.currentUser) {
-      console.error('couldn\'t sign in')
-      return;
-    }
-    const token = await auth.currentUser.getIdToken();
-    const data = await fetch('/api/create-room', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    const jsonData = await data.json();
-    jsonData.code && router.push(`/${jsonData.code}`);
-  }
 
   return (
     <div style={{
