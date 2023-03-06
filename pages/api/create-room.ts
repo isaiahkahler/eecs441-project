@@ -41,7 +41,7 @@ try {
     databaseURL: "https://class-connect-f7b87-default-rtdb.firebaseio.com"
   });
 } catch (error) {
-  console.log('error was', error)
+  console.error(error);
   app = getApp();
 }
 
