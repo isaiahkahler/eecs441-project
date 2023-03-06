@@ -1,36 +1,21 @@
 "use client";
 import { useState } from 'react'
-import Button, { IconButton } from '../components/ui/button'
+import Button, { IconButton, LinkButton } from '../components/ui/button'
 import Input from '../components/ui/input'
-import {useRouter} from 'next/navigation'
 
 import Icon from '@mdi/react'
 import { mdiArrowRightCircle } from '@mdi/js'
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { app } from '@/components/data/firebase'
+import styles from './landing.module.css'
+import Link from 'next/link';
 
 export default function Home() {
 
   const [code, setCode] = useState('');
 
-  const router = useRouter();
   const auth = getAuth(app);
 
-  const handleCreateRoom = async () => {
-    await signInAnonymously(auth);
-    if(!auth.currentUser) {
-      console.error('couldn\'t sign in')
-      return;
-    }
-    const token = await auth.currentUser.getIdToken();
-    const data = await fetch('/api/create-room', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    const jsonData = await data.json();
-    jsonData.code && router.push(`/${jsonData.code}`);
-  }
 
   return (
     <div style={{
@@ -40,7 +25,7 @@ export default function Home() {
       alignItems: 'center',
       minHeight: '90vh'
     }}>
-      <h1>SpeakUp!</h1>
+      <h1 style={{fontSize: 'min(20vw, 10vh)'}} className={styles.logoText}>SpeakUp!</h1>
       <div style={{
         display: 'flex',
         flexDirection: 'row',
@@ -55,11 +40,12 @@ export default function Home() {
           onChange={(e) => setCode((e.target as HTMLInputElement).value.replace(/[^a-z]/i, '').toUpperCase())}
         />
         <IconButton href={`/${code}`}>
-          <Icon path={mdiArrowRightCircle} size={1} />
+          <Icon path={mdiArrowRightCircle} size={1} color='inherit' />
         </IconButton>
       </div>
       <p>OR</p>
-      <Button onClick={handleCreateRoom}><p>Create a Room</p></Button>
+      {/* <Button onClick={handleCreateRoom}><p>Create a Room</p></Button> */}
+      <LinkButton href='/create-room'><p>Create a Room</p></LinkButton>
     </div>
   )
 }

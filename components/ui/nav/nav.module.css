@@ -1,0 +1,166 @@
+.nav {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* :root {
+  --bg:  #242526;
+  --bg-accent: #484a4d;
+  --text-color: #dadce1;
+  --nav-size: 60px;
+  --border: 1px solid #474a4d;
+  --border-radius: 8px;
+  --speed: 500ms; 
+} */
+
+/* ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #dadce1;
+  text-decoration: none;;
+} */
+
+/* Top Navigation Bar */
+
+/* <nav> */
+/* .navbar {
+  height: var(--nav-size);
+  background-color: #242526;
+  padding: 0 1rem;
+  border-bottom: 1px solid #474a4d;;
+} */
+
+/* <ul> */
+/* .navbar-nav {
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+} */
+
+/* <li> */
+/* .nav-item {
+  width: calc(var(--nav-size) * 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} */
+
+/* Icon Button */
+/* .icon-button {
+  --button-size: calc(var(--nav-size) * 0.5);
+  width: var(--button-size);
+  height: var(--button-size);
+  background-color: #484a4d;
+  border-radius: 50%;
+  padding: 5px;
+  margin: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 300ms;
+} */
+
+/* .icon-button:hover {
+  filter: brightness(1.2);
+} */
+
+/* .icon-button svg { 
+  fill: var(--text-color);
+  width: 20px;
+  height: 20px;
+} */
+
+
+/* Dropdown Menu */
+
+.dropdown {
+  position: absolute;
+  margin-top: 10px;
+  width: min(300px, 85vw);
+  transform: translateX(-90%);
+  background-color: #fff;
+  border: 1px solid #474a4d;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow: hidden;
+  transition: height 500ms ease;
+  color: #000;
+  z-index: 10;
+  max-height: 80vh;
+  overflow-y: scroll;
+}
+
+.menu {
+  width: 100%;
+}
+
+.menu-item {
+  height: 50px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: background 500ms;
+  padding: 0.5rem;
+  color: inherit;
+}
+
+/* .menu-item .icon-button {
+  margin-right: 0.5rem;
+} */
+
+
+/* .menu-item .icon-button:hover {
+  filter: none;
+} */
+
+.menu-item:hover {
+  background-color: #ccc;
+  color: inherit;
+  /* color: #000 */
+}
+
+.icon-right {
+  margin-left: auto;
+}
+
+/* CSSTransition classes  */
+.menu-primary-enter {
+  position: absolute;
+  transform: translateX(-110%);
+}
+.menu-primary-enter-active {
+  transform: translateX(0%);
+  transition: all 500ms ease;
+}
+.menu-primary-exit {
+  position: absolute;
+}
+.menu-primary-exit-active {
+  transform: translateX(-110%);
+  transition: all 500ms ease;
+}
+
+
+.menu-secondary-enter {
+  transform: translateX(110%);
+}
+.menu-secondary-enter-active {
+  transform: translateX(0%);
+  transition: all 500ms ease;
+}
+.menu-secondary-exit {
+
+}
+.menu-secondary-exit-active {
+  transform: translateX(110%);
+  transition: all 500ms ease;
+}
