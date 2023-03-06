@@ -9,13 +9,6 @@ import { initializeApp, cert, getApp, App } from 'firebase-admin/app'
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth'
 import { getDatabase } from 'firebase-admin/database'
 
-import * as fs from 'fs';
-import * as path from 'path';
-
-const filePath = path.join("", process.env.CERTS_FILENAME);
-const jsonData = fs.readFileSync(filePath, 'utf8');
-const certs = JSON.parse(jsonData);
-
 type Data = {
   code: string
 }
@@ -36,13 +29,13 @@ try {
     credential: cert({
       type: "service_account",
       project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      private_key_id: certs.private_key_id,
-      private_key: certs.private_key,
-      client_email: certs.client_email,
-      client_id: certs.client_id,
+      private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+      client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
       auth_uri: "https://accounts.google.com/o/oauth2/auth",
       token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: certs.auth_provider_x509_cert_url,
+      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
       client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT_URL
     } as any),
     databaseURL: "https://class-connect-f7b87-default-rtdb.firebaseio.com"
