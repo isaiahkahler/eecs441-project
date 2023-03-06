@@ -1,0 +1,17 @@
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.inner {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 64px;
+}
+
+@media screen and (max-width: 768px) {
+  .inner {
+      margin: 0 2.5vw;
+  } 
+}
