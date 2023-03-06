@@ -4,3 +4,9 @@
     flex-direction: column;
     padding: 5px;
 }
+
+.emojiPicture {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

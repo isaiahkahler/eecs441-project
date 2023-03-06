@@ -41,7 +41,7 @@ export default function EmojiMenu(props: EmojiMenuProps) {
     const emojiSrc = `/emojis/${emoji}.jpeg`;    
     return (
         <Button className={styles.emojiButton} key={emoji} onClick={createEmojiHandler(emoji)}>
-          <Image src={emojiSrc} alt={emoji} height={50} width={50} />
+          <Image className={styles.emojiPicture} src={emojiSrc} alt={emoji} height={50} width={50} />
         </Button>
       );
   });
