@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 import { Room } from "./page";
 import EmojiMenu from "@/components/ui/emoji";
 import Speaker from "@/components/ui/speaking";
-
+import Image from "next/image"
+import twemoji from "twemoji"
 
 interface ParticipantViewProps {
   code: string,
@@ -61,6 +62,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
     })
     .filter(item => item !== undefined && item !== null) : [];
 
+  const regex = /<img.*?src="(.*?)"/;
+  let lowerHandEmoji = twemoji.parse("🙇").match(regex)[1];
+  let raiseHandEmoji = twemoji.parse("🙋").match(regex)[1];
+
   return (
     
     <>
@@ -70,7 +75,12 @@ export default function ParticipantView(props: ParticipantViewProps) {
       <div style={{
         display: "flex",
       }}>
-        <Button style={{flex:"auto"}} onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
+        <Button style={{flex:"auto"}} onClick={raiseLowerHand}>
+          <div>
+            <p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
+            <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75}></Image>
+          </div>
+        </Button>
         <EmojiMenu style={{flex:"auto"}} participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
       </div>
 
