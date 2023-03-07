@@ -8,6 +8,7 @@ import { getDatabase, ref, remove, set, Database } from "firebase/database";
 import { Room } from "@/app/[code]/page";
 import { app } from "@/components/data/firebase";
 
+import twemoji from "twemoji";
 import kevinhart from '@/components/ui/emoji/imgs/kevinhart.jpeg';
 import swagEmoji from '@/components/ui/emoji/imgs/swagEmoji.jpeg';
 
@@ -38,7 +39,12 @@ export default function EmojiMenu(props: EmojiMenuProps) {
   const { emojis } = props;
 
   const emojiElements = emojis.map((emoji) => {
-    const emojiSrc = `/emojis/${emoji}.jpeg`;    
+    console.log(emoji)
+    let emojiSrc = twemoji.parse(emoji);
+    const regex = /<img.*?src="(.*?)"/;
+    const matches = emojiSrc.match(regex);
+    emojiSrc = matches[1];
+    console.log(emojiSrc);
     return (
         <Button className={styles.emojiButton} key={emoji} onClick={createEmojiHandler(emoji)}>
           <Image className={styles.emojiPicture} src={emojiSrc} alt={emoji} height={50} width={50} />
