@@ -1,0 +1,8 @@
+.speakerDisplay {
+    background-color: lightskyblue;
+    padding: 10px;
+}
+
+.speakerDisplay > * {
+    text-align: center;
+}

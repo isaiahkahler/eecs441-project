@@ -6,6 +6,7 @@ import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Room } from "./page";
 import EmojiMenu from "@/components/ui/emoji";
+import Speaker from "@/components/ui/speaking";
 
 
 interface ParticipantViewProps {
@@ -53,6 +54,13 @@ export default function ParticipantView(props: ParticipantViewProps) {
   // prompt the user to enter a name if they don't have one
   if (!name) return <EnterNameForm setParticipantName={setParticipantName} />;
 
+  let queue = room.queue ? Object.entries(room.queue)
+    .sort((a,b) => a[1] - b[1])
+    .map(([uid, time]) => {
+      return room.participants && room.participants[uid] ? room.participants[uid] : undefined;
+    })
+    .filter(item => item !== undefined && item !== null) : [];
+
   return (
     
     <>
@@ -62,6 +70,8 @@ export default function ParticipantView(props: ParticipantViewProps) {
       <h2>queue:</h2>
       
       {room.queue && Object.entries(room.queue).sort((a,b) => a[1] - b[1]).map(([uid, time]) => {return (<li key={uid}>{room.participants && room.participants[uid]}</li>)})}
+
+      <Speaker queue={queue}/>
 
       <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
 
