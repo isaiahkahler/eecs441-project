@@ -27,11 +27,11 @@ function Timer(props: timerProps) {
 
   export default function Speaker(props: currentSpeakerProps) {
     const { queue } = props;
-    const [currentSpeaker, setCurrentSpeaker] = useState<string>(queue ? queue[0] : "Nobody");
+    const [currentSpeaker, setCurrentSpeaker] = useState<string>(queue.length !== 0 ? queue[0] : "Nobody");
     const [timeStartedSpeaking, setTimeStartedSpeaking] = useState<Date>(new Date());
   
     useEffect(() => {
-      setCurrentSpeaker(queue ? queue[0] : "Nobody");
+      setCurrentSpeaker(queue.length !== 0 ? queue[0] : "Nobody");
       setTimeStartedSpeaking(new Date());
     }, [queue]);
   
