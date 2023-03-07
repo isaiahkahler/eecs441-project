@@ -54,7 +54,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
   if (!name) return <EnterNameForm setParticipantName={setParticipantName} />;
 
   return (
-    // emojiMenu: heart, like, fire, thinking
+    
     <>
       <h1>Client View</h1>
       <h2>participants:</h2>
