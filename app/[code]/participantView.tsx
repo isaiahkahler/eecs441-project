@@ -54,6 +54,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
   if (!name) return <EnterNameForm setParticipantName={setParticipantName} />;
 
   return (
+    // emojiMenu: heart, like, fire, thinking
     <>
       <h1>Client View</h1>
       <h2>participants:</h2>
@@ -64,7 +65,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
       <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
 
-      <EmojiMenu participant={participant} emojis={['\u2764\uFE0F']} />
+      <EmojiMenu participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
 
 
     </>
