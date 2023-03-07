@@ -1,5 +1,7 @@
 .button {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* background-color: #eee; */
   /* background-color: rgba(0, 0, 0, 0.06); */
   background-color: #6173fb;

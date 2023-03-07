@@ -64,19 +64,23 @@ export default function ParticipantView(props: ParticipantViewProps) {
   return (
     
     <>
+      <Speaker queue={queue}/>
+
+
+      <div style={{
+        display: "flex",
+      }}>
+        <Button style={{flex:"auto"}} onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
+        <EmojiMenu style={{flex:"auto"}} participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
+      </div>
+
+
       <h1>Client View</h1>
       <h2>participants:</h2>
       {room && room.participants && Object.entries(room.participants).map(([uid, name]) => <p key={uid}>{name}</p>)}
       <h2>queue:</h2>
       
       {room.queue && Object.entries(room.queue).sort((a,b) => a[1] - b[1]).map(([uid, time]) => {return (<li key={uid}>{room.participants && room.participants[uid]}</li>)})}
-
-      <Speaker queue={queue}/>
-
-      <Button onClick={raiseLowerHand}><p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p></Button>
-
-      <EmojiMenu participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
-
 
     </>
   );

@@ -14,7 +14,8 @@ import swagEmoji from '@/components/ui/emoji/imgs/swagEmoji.jpeg';
 
 interface EmojiMenuProps {
   participant?: User,
-  emojis: string[]
+  emojis: string[],
+  style?: CSSProperties
 }
 
 function createEmojiHandler(emoji: String) {
@@ -53,7 +54,7 @@ export default function EmojiMenu(props: EmojiMenuProps) {
   });
 
   return (
-    <div className={styles.emojiMenu}>
+    <div className={styles.emojiMenu} style={props.style}>
       {emojiElements}
     </div>
   )
