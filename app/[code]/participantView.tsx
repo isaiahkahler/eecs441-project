@@ -70,7 +70,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
     
     <>
     <div style={{
-      height: "100vh",
+      height: "90vh",
       display: "flex",
       flexDirection: "column"
     }}>
