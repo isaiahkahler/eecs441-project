@@ -1,4 +1,5 @@
 import { Room } from "./page";
+import Speaker from "@/components/ui/speaking";
 
 interface OwnerViewProps {
   code: string,
@@ -8,8 +9,16 @@ interface OwnerViewProps {
 export default function OwnerView (props: OwnerViewProps) {
   const {code, room} = props;
 
+  let queue = room.queue ? Object.entries(room.queue)
+    .sort((a,b) => a[1] - b[1])
+    .map(([uid, time]) => {
+      return room.participants && room.participants[uid] ? room.participants[uid] : undefined;
+    })
+    .filter(item => item !== undefined && item !== null) : [];
+
   return (
     <>
+      <Speaker queue={queue}/>
       <h1>Owner View</h1>
       <h1>the code is {code}</h1>
       <p>participants:</p>
