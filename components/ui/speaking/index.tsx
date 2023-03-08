@@ -3,6 +3,7 @@ import styles from './speaking.module.css'
 
 interface currentSpeakerProps {
     queue: string[],
+    style?: React.CSSProperties
 };
 
 interface timerProps {
@@ -26,7 +27,7 @@ function Timer(props: timerProps) {
   }
 
   export default function Speaker(props: currentSpeakerProps) {
-    const { queue } = props;
+    const { queue, style } = props;
     const [currentSpeaker, setCurrentSpeaker] = useState<string>(queue.length !== 0 ? queue[0] : "Nobody");
     const [timeStartedSpeaking, setTimeStartedSpeaking] = useState<Date>(new Date());
   
@@ -36,7 +37,7 @@ function Timer(props: timerProps) {
     }, [queue]);
   
     return (
-      <div className={styles.speakerDisplay}>
+      <div className={styles.speakerDisplay} style={style}>
         <h1>{currentSpeaker}</h1>
         <p>is SpeakingUp!</p>
         {timeStartedSpeaking && <Timer startedSpeaking={timeStartedSpeaking} />}

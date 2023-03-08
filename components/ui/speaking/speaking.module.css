@@ -1,6 +1,9 @@
 .speakerDisplay {
     background-color: lightskyblue;
     padding: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .speakerDisplay > * {

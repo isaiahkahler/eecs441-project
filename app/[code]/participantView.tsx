@@ -69,11 +69,18 @@ export default function ParticipantView(props: ParticipantViewProps) {
   return (
     
     <>
-      <Speaker queue={queue}/>
+    <div style={{
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column"
+    }}>
+       <Speaker style={{flex:"auto"}} queue={queue}/>
 
 
       <div style={{
         display: "flex",
+        backgroundColor: "lavender",
+        flex: 0
       }}>
         <Button style={{flex:"auto"}} onClick={raiseLowerHand}>
           <div>
@@ -83,7 +90,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
         </Button>
         <EmojiMenu style={{flex:"auto"}} participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
       </div>
-
+    </div>
 
       <h1>Client View</h1>
       <h2>participants:</h2>
