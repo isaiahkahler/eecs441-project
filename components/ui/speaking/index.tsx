@@ -38,9 +38,14 @@ function Timer(props: timerProps) {
   
     return (
       <div className={styles.speakerDisplay} style={style}>
-        <h1>{currentSpeaker}</h1>
-        <p>is SpeakingUp!</p>
-        {timeStartedSpeaking && <Timer startedSpeaking={timeStartedSpeaking} />}
+        <div>
+          <h1>{currentSpeaker}</h1>
+          <p>is SpeakingUp!</p>
+          {timeStartedSpeaking && <Timer startedSpeaking={timeStartedSpeaking} />}
+        </div>
+          <div>
+            <p>Next three: {queue.length > 1 ? queue.slice(1,4) : "Nobody"}</p>
+          </div>
       </div>
     );
   }
