@@ -13,7 +13,7 @@ export interface Room {
   expiration: number,
   participants?: Participants,
   queue?: QueueParticipant
-
+  started?: boolean
 }
 
 interface Participants {
@@ -43,6 +43,7 @@ export default function ClassClient() {
   // effect: get the room with id `code` once and store it in room
   useEffect(() => {
     if (!code) return;
+    if(!user) return;
 
     (async () => {
       try {
@@ -71,7 +72,7 @@ export default function ClassClient() {
         console.error(`Couldn't get room with id ${code}: ${error}`)
       }
     })();
-  }, [code, database]);
+  }, [code, database, user]);
 
   // if the room is owned by this user
   if (user && room && user.uid === room.owner) {
