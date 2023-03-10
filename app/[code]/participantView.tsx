@@ -49,6 +49,8 @@ export default function ParticipantView(props: ParticipantViewProps) {
     if(!room.participants) return;
     if(participant.uid in room.participants) {
       setName(room.participants[participant.uid]);
+    } else {
+      setName(null);
     }
   }, [room, participant]);
 
@@ -65,6 +67,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
   const regex = /<img.*?src="(.*?)"/;
   let lowerHandEmoji = twemoji.parse("🙇").match(regex)[1];
   let raiseHandEmoji = twemoji.parse("🙋").match(regex)[1];
+
+  if (!room.started) {
+    return <WaitingRoom  />
+  }
 
   return (
     
@@ -117,6 +123,16 @@ function EnterNameForm (props: EnterNameFormProps) {
       <h1>enter your name</h1>
       <Input type='text' value={userInput} onChange={(e) => setUserInput((e.target as HTMLInputElement).value)} />
       <Button onClick={() => setParticipantName(userInput)}><p>confirm</p></Button>
+    </>
+  );
+}
+
+function WaitingRoom (props: ParticipantViewProps) {
+  return (
+    <>
+      <h1>Waiting for the room to start...</h1>
+      <h2>How to use SpeakUp:</h2>
+      <p><strong>Raise your hand</strong> to join the queue.</p>
     </>
   );
 }

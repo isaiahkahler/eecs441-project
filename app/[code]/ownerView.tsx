@@ -4,8 +4,11 @@ import Button from "@/components/ui/button";
 import Layout from "@/components/ui/layout";
 import Container from "@/components/ui/container";
 import Speaker from "@/components/ui/speaking";
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, remove, set } from "firebase/database";
 import { app } from "@/components/data/firebase";
+import { getColor } from "@/components/ui/colors";
+import { useState } from "react";
+import styles from './ownerView.module.css';
 
 interface OwnerViewProps {
   code: string,
@@ -44,21 +47,35 @@ export default function OwnerView(props: OwnerViewProps) {
   );
 }
 
-interface WaitingRoomProps {
-  code: string,
-  room: Room
-}
 
-function WaitingRoom(props: WaitingRoomProps) {
+function WaitingRoom(props: OwnerViewProps) {
   const { code, room } = props;
   const { participants } = room;
 
   const database = getDatabase(app);
 
+  const [kickConfirm, setKickConfirm] = useState<string | null>();
 
   // set the property 'started' on the room to 'true'
   const handleStartRoom = () => {
     set(ref(database, `rooms/${code}/started`), true);
+  };
+
+  const handleKickParticipant = (id: string) => {
+    if (!kickConfirm) {
+      setKickConfirm(id);
+      setTimeout(() => setKickConfirm(null), 4000);
+    } else if (kickConfirm === id) {
+      // kick player
+      remove(ref(database, `rooms/${code}/participants/${id}`));
+      console.log(1)
+      setKickConfirm(null);
+    } else {
+      // clicked another name
+      console.log(2)
+      setKickConfirm(null);
+    }
+    
   };
 
 
@@ -92,7 +109,13 @@ function WaitingRoom(props: WaitingRoomProps) {
           flexDirection: 'row',
           flexWrap: 'wrap'
         }}>
-          {participants && Object.entries(participants).map(([id, name]) => <span key={id}><Button><h3>{name}</h3></Button></span>)}
+          {participants && Object.entries(participants).map(([id, name], index) =>
+            <span key={id} style={{margin: '0 .5em'}}>
+              <Button onClick={() => handleKickParticipant(id)} style={{backgroundColor: getColor(index)}}>
+                <h3 className={kickConfirm === id ? styles.fadeOut : ''}>{kickConfirm === id ? 'click again to kick' : name}</h3>
+                </Button>
+            </span>
+          )}
 
         </div>
 
