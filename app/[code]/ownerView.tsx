@@ -26,9 +26,9 @@ export default function OwnerView(props: OwnerViewProps) {
   let queue = room.queue ? Object.entries(room.queue)
     .sort((a, b) => a[1] - b[1])
     .map(([uid, time]) => {
-      return room.participants && room.participants[uid] ? room.participants[uid] : undefined;
+      return room.participants && room.participants[uid] ? room.participants[uid] : 'undefined';
     })
-    .filter(item => item !== undefined && item !== null) : [];
+    .filter(item => item !== undefined && item !== null && item !== '') : [];
 
   return (
     <>

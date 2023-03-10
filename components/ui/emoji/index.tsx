@@ -41,7 +41,7 @@ export default function EmojiMenu(props: EmojiMenuProps) {
 
   const regex = /<img.*?src="(.*?)"/;
   const emojiElements = emojis.map((emoji) => {
-    let emojiSrc = twemoji.parse(emoji).match(regex)[1];
+    let emojiSrc = (twemoji.parse(emoji).match(regex) || ['', ''])[1];
     return (
         <Button className={styles.emojiButton} key={emoji} onClick={createEmojiHandler(emoji)}>
           <Image className={styles.emojiPicture} src={emojiSrc} alt={emoji} height={50} width={50} />
