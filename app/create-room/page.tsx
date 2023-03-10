@@ -52,8 +52,10 @@ export default function CreateRoom() {
 
         <h1>Create Your Room</h1>
         <hr />
+        <InputCheckbox label='Require passcode to join' />
         <InputCheckbox label='Record list of participants' />
         <InputCheckbox label='Earn points' />
+        <InputCheckbox label='Disable reactions' />
       <Button onClick={handleCreateRoom}><p>Start →</p></Button>
         </Container>
       </Layout>
