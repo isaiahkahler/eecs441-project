@@ -3,7 +3,6 @@ import QRCode from 'react-qr-code'
 import Button, { IconButton } from "@/components/ui/button";
 import Layout from "@/components/ui/layout";
 import Container from "@/components/ui/container";
-import Speaker from "@/components/ui/speaking";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { app } from "@/components/data/firebase";
 import { getColor } from "@/components/ui/colors";
@@ -14,6 +13,7 @@ import { mdiAccountGroup } from "@mdi/js";
 import twemoji from "twemoji";
 import Image from "next/image";
 import ReactionsDisplay from "./components/reactions";
+import SpeakerView from "./components/speaker";
 
 interface OwnerViewProps {
   code: string,
@@ -39,17 +39,7 @@ export default function OwnerView(props: OwnerViewProps) {
 
   return (
     <>
-      <Speaker queue={sortedQueue} />
-      {/* <h1>Owner View</h1>
-      <h1>the code is {code}</h1>
-      <p>participants:</p>
-      {room && participants && Object.entries(participants).map(([uid, name]) => <p key={uid}>{name}</p>)}
-
-      <h2>queue:</h2>
-      <ol>
-        {queue && Object.entries(queue).sort((a, b) => b[1] - a[1]).map(([uid, time]) => { return (<li key={uid}>{participants && participants[uid]}</li>) })}
-      </ol> */}
-      
+      <SpeakerView room={room} />
       
       <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw' }}>Join at SpeakUp.fyi/<strong>{code}</strong></h2>
 

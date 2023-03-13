@@ -30,14 +30,15 @@ const lightColors = {
   '6': '#89e1e1', // teal
   '7': '#ccf1ff', // aqua
   '8': '#75bfff', // blue
-  '9': '#0052a3', // navy
+  // '9': '#0052a3', // navy
+  '9': '#1284db', // navy
   '10': '#e579f6', // purple
   '11': '#fdcef8', // pink
   '12': '#de217c', // maroon
   // '13': '#f2f2f2', // silver
   '13': '#dedede', // grey
-  '14': '#FFFFFF', // white
-  '15': '#383838', // black
+  // '14': '#FFFFFF', // white
+  // '15': '#383838', // black
 };
 
 const darkColors = {

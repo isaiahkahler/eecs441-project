@@ -7,6 +7,9 @@ import { getAuth, signInAnonymously } from 'firebase/auth'
 import { useEffect, useState } from 'react'
 import OwnerView from './ownerView';
 import ParticipantView from './participantView';
+import Layout from '@/components/ui/layout';
+import Container from '@/components/ui/container';
+import Button from '@/components/ui/button';
 
 export interface Room {
   owner: string,
@@ -48,7 +51,7 @@ export default function ClassClient() {
   // effect: get the room with id `code` once and store it in room
   useEffect(() => {
     if (!code) return;
-    if(!user) return;
+    if (!user) return;
 
     (async () => {
       try {
@@ -90,20 +93,19 @@ export default function ClassClient() {
   }
 
 
-  if(room === false) return (
-    <>
-      <h1>uh oh! that room doesn't exist</h1>
-    </>
+  if (room === false) return (
+    <Layout>
+      <Container>
+        <h1 style={{ textAlign: 'center' }}>uh oh! that room doesn&apos;t exist</h1>
+        <Button href='/'><p>← back to home</p></Button>
+      </Container>
+    </Layout>
   );
 
   // the room does not exist 
   return (
     <>
-      class client!
-      <p>the code is {code}</p>
-      <p>the room is {room && JSON.stringify(room)}</p>
-      {/* <p>the user is {user && JSON.stringify(user)}</p> */}
-
+      loading...
     </>
   );
 }

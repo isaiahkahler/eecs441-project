@@ -1,0 +1,27 @@
+.speakingCard {
+    width: 80%;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5vmin 0;
+    margin-bottom: 1em;
+    box-shadow: 10px 5px 15px rgba(0,0,0,0.5);
+}
+
+.fadeIn {
+    animation: fadeInAnimation 500ms;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+        
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0%, 0);
+    }
+}

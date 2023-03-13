@@ -1,6 +1,6 @@
 import Image from "next/image";
 import twemoji from "twemoji";
-import { Reaction } from "../page";
+import { Reaction } from "../../page";
 import styles from './reactions.module.css'
 
 interface ReactionsDisplayProps {

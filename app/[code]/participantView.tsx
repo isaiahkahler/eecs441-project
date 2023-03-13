@@ -6,12 +6,12 @@ import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Room } from "./page";
 import EmojiMenu from "@/components/ui/emoji";
-import Speaker from "@/components/ui/speaking";
 import Image from "next/image"
 import twemoji from "twemoji"
 import Layout from "@/components/ui/layout";
 import Container from "@/components/ui/container";
 import ReactionsDisplay from "./components/reactions";
+import SpeakerView from "./components/speaker";
 
 interface ParticipantViewProps {
   code: string,
@@ -21,7 +21,7 @@ interface ParticipantViewProps {
 
 export default function ParticipantView(props: ParticipantViewProps) {
   const { code, room, participant } = props;
-  const {reactions} = room;
+  const { reactions } = room;
   const database = getDatabase(app);
 
   const [name, setName] = useState<string | null>(null);
@@ -50,15 +50,15 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
   const handleEmojiClick = (emoji: string) => {
     (async () => {
-        // console.log(emoji);
-        const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
-        set(ref(database, reactionPath), emoji);
+      // console.log(emoji);
+      const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
+      set(ref(database, reactionPath), emoji);
 
-        setTimeout(() => {
-          remove(ref(database, reactionPath));
-        }, 5000);
+      setTimeout(() => {
+        remove(ref(database, reactionPath));
+      }, 5000);
     })();
-}
+  }
 
   // get or change name from the list of participants, if the user already joined 
   useEffect(() => {
@@ -81,8 +81,8 @@ export default function ParticipantView(props: ParticipantViewProps) {
     .filter(item => item !== undefined && item !== null && item !== '') : [];
 
   const regex = /<img.*?src="(.*?)"/;
-  let lowerHandEmoji = (twemoji.parse("🙇").match(regex) || ['', ''])[1];
-  let raiseHandEmoji = (twemoji.parse("🙋").match(regex) || ['', ''])[1];
+  let lowerHandEmoji = (twemoji.parse("🙇", { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
+  let raiseHandEmoji = (twemoji.parse("🙋", { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
 
   if (!room.started) {
     return <WaitingRoom {...props} />
@@ -96,31 +96,39 @@ export default function ParticipantView(props: ParticipantViewProps) {
         display: "flex",
         flexDirection: "column"
       }}>
-        <Speaker style={{ flex: "auto" }} queue={queue} />
+        <SpeakerView room={room} participant={participant} />
 
 
         <div style={{
           display: "flex",
-          backgroundColor: "lavender",
-          flex: 0
+          flex: 0,
+          position: 'fixed',
+          bottom: 0,
+          zIndex: 600,
+          width: '100%',
+          flexDirection: 'column',
+          alignItems: 'center',
+          // background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.5))'
         }}>
-          <Button style={{ flex: "auto" }} onClick={raiseLowerHand}>
-            <div>
-              <p>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
-              <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75} alt='raise or lower hand'></Image>
-            </div>
-          </Button>
-          <EmojiMenu style={{ flex: "auto" }} emojis={['❤️', '👍️', '🔥', '🤔']} onEmojiClick={handleEmojiClick} />
+          <button style={{
+            padding: '3em',
+            borderRadius: '20px',
+            border: 'none',
+            boxShadow: '10px 5px 15px rgba(0,0,0,0.5)',
+            backgroundColor: "#6173fb",
+            margin: '1em',
+            WebkitAppearance: 'none',
+          }}
+            onClick={raiseLowerHand}
+          >
+            <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75} alt='raise or lower hand'></Image>
+            <p style={{ marginBottom: 0, color: '#000' }}>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
+          </button>
+          <EmojiMenu emojis={['❤️', '👏', '👍️', '🔥', '🤔']} onEmojiClick={handleEmojiClick} />
+
         </div>
       </div>
 
-      {/* <h1>Client View</h1>
-      <h2>participants:</h2>
-      {room && room.participants && Object.entries(room.participants).map(([uid, name]) => <p key={uid}>{name}</p>)}
-      <h2>queue:</h2>
-
-      {room.queue && Object.entries(room.queue).sort((a, b) => a[1] - b[1]).map(([uid, time]) => { return (<li key={uid}>{room.participants && room.participants[uid]}</li>) })} */}
-      
       {reactions && <ReactionsDisplay reactions={reactions} />}
 
     </>
@@ -144,7 +152,7 @@ function EnterNameForm(props: EnterNameFormProps) {
           type='text'
           value={userInput}
           onChange={(e) => setUserInput((e.target as HTMLInputElement).value)}
-          style={{width: '100%'}}
+          style={{ width: '100%' }}
         />
         <Button onClick={() => setParticipantName(userInput)}><p>confirm</p></Button>
       </Container>
@@ -154,10 +162,15 @@ function EnterNameForm(props: EnterNameFormProps) {
 
 function WaitingRoom(props: ParticipantViewProps) {
   return (
-    <>
+    <Layout>
+      <Container>
       <h1>Waiting for the room to start...</h1>
       <h2>How to use SpeakUp:</h2>
       <p><strong>Raise your hand</strong> to join the queue.</p>
-    </>
+      <p><strong>SpeakUp!</strong> when its your turn.</p>
+      <p><strong>Lower your hand</strong> when you&apos;re done talking.</p>
+      <p>And <strong>React</strong> using emojis!</p>
+      </Container>
+    </Layout>
   );
 }
