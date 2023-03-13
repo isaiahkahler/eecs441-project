@@ -1,8 +1,13 @@
-.fadeOut { 
+.fadeOut {
   animation: fadeOnAnimation 5s;
 }
 
 @keyframes fadeOnAnimation {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

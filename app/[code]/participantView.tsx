@@ -9,6 +9,9 @@ import EmojiMenu from "@/components/ui/emoji";
 import Speaker from "@/components/ui/speaking";
 import Image from "next/image"
 import twemoji from "twemoji"
+import Layout from "@/components/ui/layout";
+import Container from "@/components/ui/container";
+import ReactionsDisplay from "./components/reactions";
 
 interface ParticipantViewProps {
   code: string,
@@ -18,6 +21,7 @@ interface ParticipantViewProps {
 
 export default function ParticipantView(props: ParticipantViewProps) {
   const { code, room, participant } = props;
+  const {reactions} = room;
   const database = getDatabase(app);
 
   const [name, setName] = useState<string | null>(null);
@@ -43,6 +47,18 @@ export default function ParticipantView(props: ParticipantViewProps) {
       set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
     }
   }
+
+  const handleEmojiClick = (emoji: string) => {
+    (async () => {
+        // console.log(emoji);
+        const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
+        set(ref(database, reactionPath), emoji);
+
+        setTimeout(() => {
+          remove(ref(database, reactionPath));
+        }, 5000);
+    })();
+}
 
   // get or change name from the list of participants, if the user already joined 
   useEffect(() => {
@@ -94,16 +110,18 @@ export default function ParticipantView(props: ParticipantViewProps) {
               <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75} alt='raise or lower hand'></Image>
             </div>
           </Button>
-          <EmojiMenu style={{ flex: "auto" }} participant={participant} emojis={['❤️', '👍️', '🔥', '🤔']} />
+          <EmojiMenu style={{ flex: "auto" }} emojis={['❤️', '👍️', '🔥', '🤔']} onEmojiClick={handleEmojiClick} />
         </div>
       </div>
 
-      <h1>Client View</h1>
+      {/* <h1>Client View</h1>
       <h2>participants:</h2>
       {room && room.participants && Object.entries(room.participants).map(([uid, name]) => <p key={uid}>{name}</p>)}
       <h2>queue:</h2>
 
-      {room.queue && Object.entries(room.queue).sort((a, b) => a[1] - b[1]).map(([uid, time]) => { return (<li key={uid}>{room.participants && room.participants[uid]}</li>) })}
+      {room.queue && Object.entries(room.queue).sort((a, b) => a[1] - b[1]).map(([uid, time]) => { return (<li key={uid}>{room.participants && room.participants[uid]}</li>) })} */}
+      
+      {reactions && <ReactionsDisplay reactions={reactions} />}
 
     </>
   );
@@ -119,11 +137,18 @@ function EnterNameForm(props: EnterNameFormProps) {
   const { setParticipantName } = props;
 
   return (
-    <>
-      <h1>enter your name</h1>
-      <Input type='text' value={userInput} onChange={(e) => setUserInput((e.target as HTMLInputElement).value)} />
-      <Button onClick={() => setParticipantName(userInput)}><p>confirm</p></Button>
-    </>
+    <Layout>
+      <Container>
+        <h1>enter your name</h1>
+        <Input
+          type='text'
+          value={userInput}
+          onChange={(e) => setUserInput((e.target as HTMLInputElement).value)}
+          style={{width: '100%'}}
+        />
+        <Button onClick={() => setParticipantName(userInput)}><p>confirm</p></Button>
+      </Container>
+    </Layout>
   );
 }
 

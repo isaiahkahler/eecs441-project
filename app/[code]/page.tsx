@@ -13,7 +13,8 @@ export interface Room {
   expiration: number,
   participants?: Participants,
   queue?: QueueParticipant
-  started?: boolean
+  started?: boolean,
+  reactions?: Reaction
 }
 
 interface Participants {
@@ -22,6 +23,10 @@ interface Participants {
 
 interface QueueParticipant {
   [participant: string]: number
+}
+
+export interface Reaction {
+  [timestamp: number]: string
 }
 
 export default function ClassClient() {
@@ -53,7 +58,7 @@ export default function ClassClient() {
           setRoom(roomSnapshot.val());
           console.log('subscribed to room');
           let _subscription = onValue(ref(database, `rooms/${code}`), (snapshot) => {
-            console.log('update room', snapshot.val());
+            // console.log('update room', snapshot.val());
             setRoom(snapshot.val());
           });
 
