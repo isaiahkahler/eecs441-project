@@ -41,7 +41,7 @@ export default function OwnerView(props: OwnerViewProps) {
     <>
       <SpeakerView room={room} />
       
-      <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw' }}>Join at SpeakUp.fyi/<strong>{code}</strong></h2>
+      <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{code}</strong></h2>
 
       <span style={{
         position: 'absolute',
