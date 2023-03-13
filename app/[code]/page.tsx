@@ -20,11 +20,11 @@ export interface Room {
   reactions?: Reaction
 }
 
-interface Participants {
+export interface Participants {
   [participant: string]: string
 }
 
-interface QueueParticipant {
+export interface QueueParticipant {
   [participant: string]: number
 }
 

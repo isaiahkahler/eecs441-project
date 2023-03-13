@@ -15,6 +15,8 @@ export default function SpeakerView(props: SpeakerViewProps) {
   const ownUid = props.participant ? props.participant.uid : null;
 
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [queueTime, setQueueTime] = useState(Date.now());
+  const [lastPerson, setLastPerson] = useState<[string, number] | null>(null);
 
   useEffect(() => {
     const updateTime = setInterval(() => {
@@ -26,12 +28,25 @@ export default function SpeakerView(props: SpeakerViewProps) {
     }
   }, []);
 
+
+
   let sortedQueue = queue ? Object.entries(queue)
     .sort((a, b) => a[1] - b[1])
     .filter(item => item !== undefined && item !== null) : [];
 
   const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
   const others = sortedQueue.length > 1 ? sortedQueue.slice(1) : null;
+
+  useEffect(() => {
+    if(firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
+      return
+    }
+
+    console.log('update timer')
+    setLastPerson(firstInLine);
+    setQueueTime(Date.now());
+    setCurrentTime(Date.now());
+  }, [firstInLine, lastPerson]);
 
   return (
     <>
@@ -55,7 +70,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
               position: 'absolute',
               right: '1em',
               top: '0em'
-            }}>{Math.floor((currentTime - firstInLine[1]) / 1000)}</h2>
+            }}>{Math.floor((currentTime - queueTime) / 1000)}</h2>
 
             <h1 style={{
               fontSize: '10vmin',
