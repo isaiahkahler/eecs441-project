@@ -10,6 +10,7 @@ import ParticipantView from './participantView';
 import Layout from '@/components/ui/layout';
 import Container from '@/components/ui/container';
 import Button from '@/components/ui/button';
+import useNoSleep from 'use-no-sleep';
 
 export interface Room {
   owner: string,
@@ -37,6 +38,7 @@ export default function ClassClient() {
   const code = pathname.substr(1).toUpperCase();
   const auth = getAuth(app);
   const database = getDatabase(app);
+  useNoSleep(true);
 
   const [room, setRoom] = useState<Room | null | false>();
 
