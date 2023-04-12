@@ -1,23 +1,35 @@
+import { app } from '@/components/data/firebase';
+import { useStore } from '@/components/data/store';
+import { IconButton } from '@/components/ui/button';
 import { getLightColor } from '@/components/ui/colors';
+import { mdiArrowDownRight } from '@mdi/js';
+import Icon from '@mdi/react';
 import { User } from 'firebase/auth';
+import { getDatabase, ref, remove } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { Room } from '../../page';
 import styles from './speaker.module.css'
 
 interface SpeakerViewProps {
   room: Room,
-  participant?: User
+  participant?: User,
+  code: string
 }
 
 export default function SpeakerView(props: SpeakerViewProps) {
-  const { room } = props;
+  const { room, code } = props;
   const { queue, participants } = room;
   const ownUid = props.participant ? props.participant.uid : null;
+  const database = getDatabase(app);
+
 
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [queueTime, setQueueTime] = useState(Date.now());
   const [lastPerson, setLastPerson] = useState<[string, number] | null>(null);
 
+  const user = useStore(state => state.user);
+
+  // update the current time every second
   useEffect(() => {
     const updateTime = setInterval(() => {
       setCurrentTime(Date.now());
@@ -28,8 +40,8 @@ export default function SpeakerView(props: SpeakerViewProps) {
     }
   }, []);
 
-
-
+  // find the first in line
+  // [participant uid, timestamp of hand raise]
   let sortedQueue = queue ? Object.entries(queue)
     .sort((a, b) => a[1] - b[1])
     .filter(item => item !== undefined && item !== null) : [];
@@ -37,8 +49,9 @@ export default function SpeakerView(props: SpeakerViewProps) {
   const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
   const others = sortedQueue.length > 1 ? sortedQueue.slice(1) : null;
 
+  // if the first person in line changes, update the timer 
   useEffect(() => {
-    if(firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
+    if (firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
       return
     }
 
@@ -47,6 +60,12 @@ export default function SpeakerView(props: SpeakerViewProps) {
     setQueueTime(Date.now());
     setCurrentTime(Date.now());
   }, [firstInLine, lastPerson]);
+
+  // clear the first speaker if the admin clicks the dismiss button
+  const dismissFirstSpeaker = () => {
+    if(!firstInLine) return;
+    remove(ref(database, `rooms/${code}/queue/${firstInLine[0]}`));
+  }
 
   return (
     <>
@@ -71,6 +90,14 @@ export default function SpeakerView(props: SpeakerViewProps) {
               right: '1em',
               top: '0em'
             }}>{Math.floor((currentTime - queueTime) / 1000)}</h2>
+
+            {/* admin button to dismiss speaker */}
+            {user && user.uid && user.uid === room.owner && <IconButton
+              style={{ position: 'absolute', right: '1em', bottom: '0em' }}
+              onClick={dismissFirstSpeaker}
+            >
+              <Icon path={mdiArrowDownRight} size={1} />
+            </IconButton>}
 
             <h1 style={{
               fontSize: '10vmin',

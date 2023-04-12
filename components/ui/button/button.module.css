@@ -19,7 +19,13 @@
   color: #fff;
 }
 
-.button:hover {
+.button:disabled {
+  background-color: #eaeaea;
+  color: #232323;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):hover {
   /* box-shadow: 0 0 15px rgba(0,0,0,0.2); */
   filter: brightness(0.9);
   color: #fff;

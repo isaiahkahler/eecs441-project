@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react'
-import Button, { IconButton, LinkButton } from '../components/ui/button'
+import Button, { IconButton, LinkButton, SpanButton } from '../components/ui/button'
 import Input from '../components/ui/input'
 
 import Icon from '@mdi/react'
@@ -25,7 +25,7 @@ export default function Home() {
       alignItems: 'center',
       minHeight: '90vh'
     }}>
-      <h1 style={{fontSize: 'min(20vw, 10vh)'}} className={styles.logoText}>SpeakUp!</h1>
+      <h1 style={{ fontSize: 'min(20vw, 10vh)' }} className={styles.logoText}>SpeakUp!</h1>
       <div style={{
         display: 'flex',
         flexDirection: 'row',
@@ -39,13 +39,13 @@ export default function Home() {
           value={code}
           onChange={(e) => setCode((e.target as HTMLInputElement).value.replace(/[^a-z]/i, '').toUpperCase())}
         />
-        <IconButton href={`/${code}`}>
-          <Icon path={mdiArrowRightCircle} size={1} color='inherit' />
-        </IconButton>
+        <LinkButton href={`/${code}`}>Join →</LinkButton>
       </div>
       <p>OR</p>
-      {/* <Button onClick={handleCreateRoom}><p>Create a Room</p></Button> */}
-      <LinkButton href='/create-room'><p>Create a Room</p></LinkButton>
+      <SpanButton style={{ backgroundColor: 'transparent', color: '#000', border: '1px solid #eaeaea' }}>
+        <Link style={{ color: '#232323' }} href='/create-room'>Create a Room</Link>
+      </SpanButton>
+
     </div>
   )
 }

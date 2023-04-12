@@ -1,8 +1,8 @@
 .fadeOut {
-  animation: fadeOnAnimation 5s;
+  animation: fadeOutAnimation 5s;
 }
 
-@keyframes fadeOnAnimation {
+@keyframes fadeOutAnimation {
   0% {
     opacity: 1;
   }

@@ -1,14 +1,20 @@
-import React, { CSSProperties, HTMLProps, PropsWithChildren } from 'react'
+import React, { ButtonHTMLAttributes, CSSProperties, DetailedHTMLProps, HTMLProps, PropsWithChildren } from 'react'
 import styles from './button.module.css'
 import Link, { LinkProps } from 'next/link'
 
 type ButtonProps = PropsWithChildren<HTMLProps<HTMLAnchorElement>>;
 
-export default function Button(props: ButtonProps) {
+export default function Button(props: DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) {
   return (
-    <a {...props} className={styles.button}>
+    <button type="button" {...props} className={styles.button} />
+  );
+}
+
+export function SpanButton(props: ButtonProps) {
+  return (
+    <span {...props} className={styles.button}>
       {props.children}
-    </a>
+    </span>
   );
 }
 

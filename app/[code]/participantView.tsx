@@ -96,7 +96,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
         display: "flex",
         flexDirection: "column"
       }}>
-        <SpeakerView room={room} participant={participant} />
+        <SpeakerView room={room} participant={participant} code={code} />
 
 
         <div style={{
@@ -124,7 +124,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
             <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75} alt='raise or lower hand'></Image>
             <p style={{ marginBottom: 0, color: '#000' }}>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
           </button>
-          <EmojiMenu emojis={['❤️', '👏', '👍️', '🔥', '🤔']} onEmojiClick={handleEmojiClick} />
+          <EmojiMenu emojis={['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleEmojiClick} />
 
         </div>
       </div>

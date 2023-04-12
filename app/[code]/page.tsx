@@ -9,7 +9,7 @@ import OwnerView from './ownerView';
 import ParticipantView from './participantView';
 import Layout from '@/components/ui/layout';
 import Container from '@/components/ui/container';
-import Button from '@/components/ui/button';
+import Button, { LinkButton } from '@/components/ui/button';
 import useNoSleep from 'use-no-sleep';
 
 export interface Room {
@@ -38,7 +38,7 @@ export default function ClassClient() {
   const code = pathname.substr(1).toUpperCase();
   const auth = getAuth(app);
   const database = getDatabase(app);
-  useNoSleep(true);
+  // useNoSleep(true);
 
   const [room, setRoom] = useState<Room | null | false>();
 
@@ -80,6 +80,8 @@ export default function ClassClient() {
 
       } catch (error) {
         console.error(`Couldn't get room with id ${code}: ${error}`)
+        // TODO create a separate error message for this 
+        setRoom(false);
       }
     })();
   }, [code, database, user]);
@@ -99,7 +101,9 @@ export default function ClassClient() {
     <Layout>
       <Container>
         <h1 style={{ textAlign: 'center' }}>uh oh! that room doesn&apos;t exist</h1>
-        <Button href='/'><p>← back to home</p></Button>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+        <LinkButton href='/'>← back to home</LinkButton>
+        </div>
       </Container>
     </Layout>
   );

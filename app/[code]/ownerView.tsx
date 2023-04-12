@@ -9,11 +9,12 @@ import { getColor } from "@/components/ui/colors";
 import { useState } from "react";
 import styles from './ownerView.module.css';
 import Icon from "@mdi/react";
-import { mdiAccountGroup } from "@mdi/js";
+import { mdiAccountGroup, mdiNotificationClearAll } from "@mdi/js";
 import twemoji from "twemoji";
 import Image from "next/image";
 import ReactionsDisplay from "./components/reactions";
 import SpeakerView from "./components/speaker";
+import { database } from "firebase-admin";
 
 interface OwnerViewProps {
   code: string,
@@ -24,33 +25,58 @@ interface OwnerViewProps {
 export default function OwnerView(props: OwnerViewProps) {
   const { code, room } = props;
   const { participants, queue, reactions } = room;
+  const database = getDatabase(app);
+
+  const [confirmDismiss, setConfirmDismiss] = useState(false);
 
 
   if (!room.started) {
     return <WaitingRoom {...props} />
   }
 
-  let sortedQueue = queue ? Object.entries(queue)
-    .sort((a, b) => a[1] - b[1])
-    .map(([uid, time]) => {
-      return participants && participants[uid] ? participants[uid] : 'undefined';
-    })
-    .filter(item => item !== undefined && item !== null && item !== '') : [];
+  // clear all the participants if the clear all button is clicked
+  const dismissAll = () => {
+    if (!confirmDismiss) {
+      setConfirmDismiss(true);
+      setTimeout(() => setConfirmDismiss(false), 4000);
+      return;
+    } else {
+      remove(ref(database, `rooms/${code}/queue`))
+      setConfirmDismiss(false);
+    }
+  }
 
   return (
     <>
-      <SpeakerView room={room} />
-      
+      <SpeakerView room={room} code={code} />
+
       <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{code}</strong></h2>
 
+      <span style={{ position: 'fixed', bottom: '1em', right: '1em' }}>
+        <QRCode value={`https://speakup.fyi/${code}`} style={{ width: 'min(15vw, 15vh)', height: 'min(15vw, 15vh)' }} />
+      </span>
+
+      {/* top left corner container with buttons  */}
       <span style={{
         position: 'absolute',
         left: '1em',
-        top: '1em'
+        top: '1em',
+        display: 'flex',
+        flexDirection: 'column',
+        // justifyContent: 'flex-start'
+        alignItems: 'flex-start'
       }}>
-        <IconButton style={{padding: '0.25em 0.5em'}}>
-          <h2 style={{display: 'inline', marginRight: '0.25em'}}>{participants ? Object.keys(participants).length : '0'}</h2><Icon path={mdiAccountGroup} size={1.5} />
+        {/* indicator for number of participants */}
+        <IconButton style={{ padding: '0.25em 0.5em' }}>
+          <h2 style={{ display: 'inline', marginRight: '0.25em' }}>{participants ? Object.keys(participants).length : '0'}</h2><Icon path={mdiAccountGroup} size={1.5} />
         </IconButton>
+        {/* button to clear all participants */}
+        {/* <span style={{display: 'flex'}}> */}
+          <IconButton onClick={dismissAll}>
+            <Icon path={mdiNotificationClearAll} size={1.5} />
+            {confirmDismiss && <p style={{fontWeight: 'bold', paddingRight: '0.5em'}} className={styles.fadeOut}>Click again to dismiss all hands</p>}
+          </IconButton>
+        {/* </span> */}
       </span>
 
       {reactions && <ReactionsDisplay reactions={reactions} />}
