@@ -2,6 +2,39 @@
   animation: fadeOutAnimation 5s;
 }
 
+.qrCode {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+}
+
+.modalContainer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  top: 0;
+  background-color: rgba(0,0,0,0.25);
+}
+
+.modal {
+  width: min(680px, 90vw);
+  height: 80vh;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  position: relative;
+}
+
+@media screen and (max-width: 680px) {
+  .qrCode {
+    display: none;
+  }
+}
+
 @keyframes fadeOutAnimation {
   0% {
     opacity: 1;
@@ -11,3 +44,5 @@
     opacity: 0;
   }
 }
+
+

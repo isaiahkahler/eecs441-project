@@ -29,7 +29,7 @@ export function LinkButton({ children, ...props }: PropsWithChildren<LinkProps>)
 
 export function TransparentButton(props: ButtonProps) {
   return (
-    <a {...props} className={styles.button} style={{ ...props.style, backgroundColor: 'transparent', border: '2px solid #000', ...props.style }}>
+    <a {...props} className={`${styles.button} ${styles.transparentButton}`} >
       {props.children}
     </a>
   );

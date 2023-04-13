@@ -62,7 +62,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
   // get or change name from the list of participants, if the user already joined 
   useEffect(() => {
-    if (!room.participants) return;
+    if (!room.participants) {
+      setName(null);
+      return;
+    };
     if (participant.uid in room.participants) {
       setName(room.participants[participant.uid]);
     } else {
@@ -108,7 +111,6 @@ export default function ParticipantView(props: ParticipantViewProps) {
           width: '100%',
           flexDirection: 'column',
           alignItems: 'center',
-          // background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.5))'
         }}>
           <button style={{
             padding: '3em',

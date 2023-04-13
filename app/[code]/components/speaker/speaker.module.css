@@ -9,11 +9,11 @@
     box-shadow: 10px 5px 15px rgba(0,0,0,0.5);
 }
 
-.fadeIn {
-    animation: fadeInAnimation 500ms;
+.fadeInUp {
+    animation: fadeInUpAnimation 500ms;
 }
 
-@keyframes fadeInAnimation {
+@keyframes fadeInUpAnimation {
     0% {
         opacity: 0;
         transform: translate3d(0, 100%, 0);
@@ -23,5 +23,20 @@
     100% {
         opacity: 1;
         transform: translate3d(0, 0%, 0);
+    }
+}
+
+.fadeIn {
+    animation: fadeInAnimation 500ms;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+        
+    }
+
+    100% {
+        opacity: 1;
     }
 }

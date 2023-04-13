@@ -1,21 +1,13 @@
 "use client";
 import { useState } from 'react'
-import Button, { IconButton, LinkButton, SpanButton } from '../components/ui/button'
+import { LinkButton, TransparentButton } from '../components/ui/button'
 import Input from '../components/ui/input'
-
-import Icon from '@mdi/react'
-import { mdiArrowRightCircle } from '@mdi/js'
-import { getAuth, signInAnonymously } from 'firebase/auth'
-import { app } from '@/components/data/firebase'
 import styles from './landing.module.css'
 import Link from 'next/link';
 
 export default function Home() {
 
   const [code, setCode] = useState('');
-
-  const auth = getAuth(app);
-
 
   return (
     <div style={{
@@ -34,7 +26,7 @@ export default function Home() {
         gap: '10px'
       }}>
         <Input
-          placeholder='Class Code'
+          placeholder='Room Code'
           maxLength={6}
           value={code}
           onChange={(e) => setCode((e.target as HTMLInputElement).value.replace(/[^a-z]/i, '').toUpperCase())}
@@ -42,10 +34,9 @@ export default function Home() {
         <LinkButton href={`/${code}`}>Join →</LinkButton>
       </div>
       <p>OR</p>
-      <SpanButton style={{ backgroundColor: 'transparent', color: '#000', border: '1px solid #eaeaea' }}>
-        <Link style={{ color: '#232323' }} href='/create-room'>Create a Room</Link>
-      </SpanButton>
-
+      <TransparentButton>
+        <Link href='/create-room'>Create a Room</Link>
+      </TransparentButton>
     </div>
   )
 }

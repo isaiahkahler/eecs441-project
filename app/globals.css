@@ -115,19 +115,19 @@ body {
 }
 
 a {
-  color: #0000ee;
+  /* color: #0000ee; */
   /* code review: use the right transition property to control hover & active brightness instead of hex values */
   transition: filter 200ms;
   text-decoration: none;
 }
 a:visited {
-  color:#0000ee;
+  /* color:#0000ee; */
 }
 a:hover {
-  color:#6969ff;
+  /* color:#6969ff; */
 }   
 a:active {
-  color:#0000ee;
+  /* color:#0000ee; */
   filter: brightness(1.1);
 }  
 * {

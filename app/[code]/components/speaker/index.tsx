@@ -63,12 +63,14 @@ export default function SpeakerView(props: SpeakerViewProps) {
 
   // clear the first speaker if the admin clicks the dismiss button
   const dismissFirstSpeaker = () => {
-    if(!firstInLine) return;
+    if (!firstInLine) return;
     remove(ref(database, `rooms/${code}/queue/${firstInLine[0]}`));
   }
 
   return (
     <>
+
+
       {/* container for the first speaker */}
       <div style={{
         display: 'flex',
@@ -76,10 +78,15 @@ export default function SpeakerView(props: SpeakerViewProps) {
         alignItems: 'center',
         padding: '2em 0'
       }}>
+        {/* message displayed if queue is empty */}
+        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`}>
+          <h1>The Queue is Empty</h1>
+          <h2>Raise your hand to join</h2>
+        </div>}
 
         {firstInLine &&
           <div
-            className={`${styles.fadeIn} ${styles.speakingCard}`}
+            className={`${styles.fadeInUp} ${styles.speakingCard}`}
             style={{
               maxWidth: '680px',
               backgroundColor: getLightColor(firstInLine[1]),
@@ -124,7 +131,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
         {others && others.map(([uid, timestamp], index) =>
           <div
             key={uid}
-            className={`${styles.fadeIn} ${styles.speakingCard}`}
+            className={`${styles.fadeInUp} ${styles.speakingCard}`}
             style={{
               maxWidth: `calc(680px - ${(index + 1) * 50}px)`,
               backgroundColor: getLightColor(timestamp),
