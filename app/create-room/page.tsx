@@ -7,7 +7,6 @@ import Layout from '@/components/ui/layout';
 import Container from '@/components/ui/container';
 import Nav from '@/components/ui/nav';
 import Button, { LinkButton } from '@/components/ui/button';
-import Link from 'next/link';
 import { InputCheckbox } from '@/components/ui/input';
 import { useRouter } from 'next/navigation'
 import Icon from '@mdi/react';
@@ -62,6 +61,8 @@ export default function CreateRoom() {
           <InputCheckbox label='Record list of participants' />
           <InputCheckbox label='Earn points' />
           <InputCheckbox label='Disable reactions' />
+          <InputCheckbox label='Custom reactions' />
+          <InputCheckbox label='Enable responding ' />
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '1rem 0' }}>
             <Button disabled={loading} onClick={handleCreateRoom}><p>Start →</p></Button>
             {loading && <div style={{ position: 'absolute' }}>

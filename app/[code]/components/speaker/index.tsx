@@ -54,8 +54,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
     if (firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
       return
     }
-
-    console.log('update timer')
+    
     setLastPerson(firstInLine);
     setQueueTime(Date.now());
     setCurrentTime(Date.now());
@@ -79,7 +78,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
         padding: '2em 0'
       }}>
         {/* message displayed if queue is empty */}
-        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`}>
+        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`} style={{boxShadow: 'none', border: '1px solid #aaa'}}>
           <h1>The Queue is Empty</h1>
           <h2>Raise your hand to join</h2>
         </div>}

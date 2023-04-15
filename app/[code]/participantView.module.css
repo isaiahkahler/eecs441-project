@@ -1,0 +1,58 @@
+.participantView {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.controlsContainer {
+  display: flex;
+  flex: 0;
+  position: fixed;
+  bottom: 0;
+  z-index: 600;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.raiseLowerButton {
+  padding: 3em;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 10px 5px 15px rgba(0, 0, 0, 0.5);
+  background-color: #6173fb;
+  margin: 1em;
+  -webkit-appearance: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.raiseLowerText {
+  margin-bottom: 0;
+  color: #000;
+}
+
+.raiseLowerCoolDownOverlay {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.raiseLowerCoolDownOverlayAnimation{
+  animation: flattenAnimation 3s linear;
+}
+
+
+@keyframes flattenAnimation {
+  0% {
+    height: 100%;
+  }
+
+  100% {
+    height: 0;
+  }
+}
+
+

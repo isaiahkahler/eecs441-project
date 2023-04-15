@@ -1,19 +1,31 @@
 .emojiMenu {
-    display: flex;
-    /* background-color: lightblue; */
-    flex-direction: row;
-    /* padding: 5px; */
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .emojiButton {
-    padding: 0.75em;
-    margin: 0.5em;
+  padding: 0.75em;
+  margin: 0.5em;
+  overflow: hidden;
+  position: relative;
 }
 
-/* 
-.emojiPicture {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-} */
+.emojiButton img {
+  user-select: none;
+}
+
+.warningContainer {
+  position: absolute;
+  display: flex;
+  padding: 0 1rem;
+  background-color: #eaeaea;
+  border-radius: 100px;
+  box-shadow: 10px 5px 15px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+.warningContainer > * {
+  margin: 0.5rem 0;
+}

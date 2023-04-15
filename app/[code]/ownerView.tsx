@@ -28,7 +28,6 @@ export default function OwnerView(props: OwnerViewProps) {
   const database = getDatabase(app);
 
   const [confirmDismiss, setConfirmDismiss] = useState(false);
-  const [kickConfirm, setKickConfirm] = useState<string | null>();
   const [openModal, setOpenModal] = useState(false);
 
 
@@ -48,23 +47,6 @@ export default function OwnerView(props: OwnerViewProps) {
     }
   }
 
-
-  const handleKickParticipant = (id: string) => {
-    if (!kickConfirm) {
-      setKickConfirm(id);
-      setTimeout(() => setKickConfirm(null), 4000);
-    } else if (kickConfirm === id) {
-      // kick player
-      remove(ref(database, `rooms/${code}/participants/${id}`));
-      console.log(1)
-      setKickConfirm(null);
-    } else {
-      // clicked another name
-      console.log(2)
-      setKickConfirm(null);
-    }
-
-  };
 
   return (
     <>
@@ -118,7 +100,7 @@ export default function OwnerView(props: OwnerViewProps) {
             <Icon path={mdiClose} size={1} color='#000' />
           </IconButton>
 
-          <ParticipantList code={code} participants={participants} />
+          <ParticipantList code={code} participants={participants} room={room} />
         </div>
       </div>}
     </>
@@ -162,7 +144,7 @@ function WaitingRoom(props: OwnerViewProps) {
 
         <h2>participants:</h2>
 
-        <ParticipantList code={code} participants={participants} />
+        <ParticipantList code={code} participants={participants} room={room} />
 
         <span style={{ position: 'fixed', right: '2em', bottom: '2em' }}>
 
@@ -173,8 +155,8 @@ function WaitingRoom(props: OwnerViewProps) {
   );
 }
 
-function ParticipantList(props: { participants?: Participants, code: string }) {
-  const { participants, code } = { ...props };
+function ParticipantList(props: { participants?: Participants, code: string, room: Room }) {
+  const { participants, code, room } = { ...props };
   const [kickConfirm, setKickConfirm] = useState<string | null>();
   const database = getDatabase(app);
 
@@ -185,7 +167,9 @@ function ParticipantList(props: { participants?: Participants, code: string }) {
     } else if (kickConfirm === id) {
       // kick player
       remove(ref(database, `rooms/${code}/participants/${id}`));
-      console.log(1)
+      if(room.queue && id in room.queue) {
+        remove(ref(database, `rooms/${code}/queue/${id}`));
+      }
       setKickConfirm(null);
     } else {
       // clicked another name

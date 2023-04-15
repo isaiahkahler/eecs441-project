@@ -1,4 +1,4 @@
-import React, { CSSProperties, HTMLProps, PropsWithChildren } from 'react';
+import React, { CSSProperties, HTMLProps, PropsWithChildren, useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from './emoji.module.css';
 import Button, { IconButton } from '@/components/ui/button';
@@ -6,26 +6,58 @@ import Button, { IconButton } from '@/components/ui/button';
 import twemoji from "twemoji";
 interface EmojiMenuProps {
   emojis: string[],
-  style?: CSSProperties,
-  onEmojiClick: (emoji: string) => void
+  onEmojiClick: (emoji: string) => void,
+
 }
 
 export default function EmojiMenu(props: EmojiMenuProps) {
   const { emojis, onEmojiClick } = props;
+  const [reactionClicks, setReactionClicks] = useState<number[]>([]);
+  const [coolDown, setCoolDown] = useState(false);
+
+  const [coolDownInMilliseconds, setCoolDownInMilliseconds] = useState<number | null>(null);
+
+  const onReactionClick = (emoji: string) => {
+    // check if there has been more than 5 reactions in the last 5 seconds
+    if (reactionClicks.length === 5 && (Date.now() - reactionClicks[0]) < (3 * 1000)) {
+      // setCoolDown(true);
+      console.log(`in ${(3 - (Date.now() - reactionClicks[0]) / 1000)} seconds`)
+      if (coolDownInMilliseconds) return;
+      setCoolDownInMilliseconds(3000 - (Date.now() - reactionClicks[0]));
+      return;
+    }
+    setReactionClicks(prev => prev.length === 5 ? [...prev.slice(1), Date.now()] : [...prev, Date.now()]);
+    onEmojiClick(emoji);
+  }
+
+  // listen to coolDownInMilliseconds and update coolDown accordingly
+  useEffect(() => {
+    if (!coolDownInMilliseconds) {
+      setCoolDown(false);
+      return;
+    }
+    setCoolDown(true);
+    const timeout = setTimeout(() => {
+      setCoolDownInMilliseconds(null);
+      setCoolDown(false);
+    }, coolDownInMilliseconds);
+    return () => clearTimeout(timeout);
+  }, [coolDownInMilliseconds]);
 
   const regex = /<img.*?src="(.*?)"/;
   const emojiElements = emojis.map((emoji) => {
     let emojiSrc = (twemoji.parse(emoji, { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
     return (
-      <IconButton className={styles.emojiButton} key={emoji} onClick={() => onEmojiClick(emoji)}>
+      <IconButton className={styles.emojiButton} key={emoji} onClick={() => onReactionClick(emoji)}>
         <Image src={emojiSrc} alt={`${emoji} reaction`} width={30} height={30} />
       </IconButton>
     );
   });
 
   return (
-    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
+    <div className={styles.emojiMenu}>
       {emojiElements}
+      {coolDown && <span className={styles.warningContainer}><p>too many reactions</p></span>}
     </div>
   )
 }

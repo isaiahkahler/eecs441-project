@@ -36,11 +36,11 @@ export function TransparentButton(props: ButtonProps) {
 
 }
 
-export function IconButton(props: ButtonProps) {
+export function IconButton(props: DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) {
   return (
-    <a {...props} className={`${styles.button} ${styles.iconButton} ${props.className ? props.className : ''}`}>
+    <button type='button' {...props} className={`${styles.button} ${styles.iconButton} ${props.className ? props.className : ''}`}>
       {props.children}
-    </a>
+    </button>
   );
 }
 
