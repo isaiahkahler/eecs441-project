@@ -76,22 +76,22 @@ export default async function handler(
     return;
   }
 
-  const { passcode, disableReactions, customReactions } = req.query;
-  console.log('===================================')
-  console.log('req.query', req.query)
-  console.log('===================================')
+  const { passcode, disableReactions, customReactions, pointsEnabled } = req.query;
+  // console.log('===================================')
+  // console.log('req.query', req.query)
+  // console.log('===================================')
 
   const db = getDatabase(app);
   let roomExists = true;
   let randomCode = '';
   while (roomExists) {
     randomCode = makeid(6);
-    console.log('random code:', randomCode)
+    // console.log('random code:', randomCode)
     const roomRef = ref(db as any, `rooms/${randomCode}`);
     const roomData = await get(roomRef);
     if (!roomData.exists()) {
       roomExists = false;
-      console.log('room doesnt exist!')
+      // console.log('room doesnt exist!')
 
       const initialRoom: Room = {
         owner: userToken.uid,
@@ -106,6 +106,9 @@ export default async function handler(
       if(customReactions && !Array.isArray(customReactions)){
         initialRoom.customReactions = customReactions;
       }
+      if(pointsEnabled){
+        initialRoom.pointsEnabled = true;
+      }
       await set(ref(db as any, `rooms/${randomCode}`), initialRoom);
 
       if(passcode) {
@@ -114,9 +117,9 @@ export default async function handler(
         // get hash of room code + password
         const hash = CryptoJS.MD5(randomCode + passcode).toString();
         await set(ref(db as any, `rooms/${hash}`), initialRoom);
-        console.log('made passcode room!')
+        // console.log('made passcode room!')
       }
-      console.log('made room!')
+      // console.log('made room!')
 
     }
   }

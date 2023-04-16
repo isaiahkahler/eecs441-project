@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { Room } from "./page";
 import EmojiMenu, { convertEmoji } from "@/components/ui/emoji";
 import Image from "next/image"
-import twemoji from "twemoji"
 import Layout from "@/components/ui/layout";
 import Container from "@/components/ui/container";
 import ReactionsDisplay from "./components/reactions";
@@ -30,6 +29,24 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
   const [coolDown, setCoolDown] = useState(false);
 
+  let sortedQueue = room.queue ? Object.entries(room.queue)
+    .sort((a, b) => a[1] - b[1])
+    .filter(item => item !== undefined && item !== null) : [];
+
+  const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
+
+  // get or change name from the list of participants, if the user already joined 
+  useEffect(() => {
+    if (!room.participants) {
+      setName(null);
+      return;
+    };
+    if (participant.uid in room.participants) {
+      setName(room.participants[participant.uid]);
+    } else {
+      setName(null);
+    }
+  }, [room, participant]);
 
   // function that adds the participant to the room once they have entered a name
   const setParticipantName = (_name: string) => {
@@ -38,15 +55,20 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
   const raiseHand = () => {
     set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
+
+    // set queue time if they are the first in the queue (variable tracks how long someone is at the top)
+    if(!room.queue){
+      set(ref(database, `rooms/${code}/queueTime`), Date.now());
+    }
   }
 
-  // temporary delete
-  useEffect(() => {
-    console.log('cooldown change:', coolDown)
-  }, [coolDown]);
-
   const lowerHand = () => {
+    // remove from queue
     remove(ref(database, `rooms/${code}/queue/${participant.uid}`));
+    // set queueTime (variable tracks how long someone is at the top)
+    if(firstInLine && firstInLine[0] === participant.uid){
+      set(ref(database, `rooms/${code}/queueTime`), Date.now());
+    }
     setCoolDown(true);
     setTimeout(() => setCoolDown(false), 3000);
   }
@@ -79,32 +101,9 @@ export default function ParticipantView(props: ParticipantViewProps) {
     })();
   }
 
-  // get or change name from the list of participants, if the user already joined 
-  useEffect(() => {
-    if (!room.participants) {
-      setName(null);
-      return;
-    };
-    if (participant.uid in room.participants) {
-      setName(room.participants[participant.uid]);
-    } else {
-      setName(null);
-    }
-  }, [room, participant]);
 
   // prompt the user to enter a name if they don't have one
   if (!name) return <EnterNameForm setParticipantName={setParticipantName} room={room} />;
-
-  let queue = room.queue ? Object.entries(room.queue)
-    .sort((a, b) => a[1] - b[1])
-    .map(([uid, time]) => {
-      return room.participants && room.participants[uid] ? room.participants[uid] : 'undefined';
-    })
-    .filter(item => item !== undefined && item !== null && item !== '') : [];
-
-  const regex = /<img.*?src="(.*?)"/;
-  let lowerHandEmoji =  convertEmoji("🙇");
-  let raiseHandEmoji = convertEmoji("🙋");
 
   if (!room.started) {
     return <WaitingRoom {...props} />
@@ -122,7 +121,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
             disabled={coolDown}
             onClick={raiseLowerHand}
           >
-            <Image src={room.queue && participant.uid in room.queue ? lowerHandEmoji : raiseHandEmoji} width={75} height={75} alt='raise or lower hand'></Image>
+            <Image src={room.queue && participant.uid in room.queue ? convertEmoji("🙇") : convertEmoji("🙋")} width={75} height={75} alt='raise or lower hand'></Image>
             <p className={styles.raiseLowerText}>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
             <div className={`${styles.raiseLowerCoolDownOverlay} ${coolDown ? styles.raiseLowerCoolDownOverlayAnimation : ''}`} />
           </button>
@@ -136,6 +135,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
     </>
   );
 }
+
+
+
+
 
 interface EnterNameFormProps {
   setParticipantName: (name: string) => void,
@@ -184,7 +187,7 @@ function EnterNameForm(props: EnterNameFormProps) {
 }
 
 function WaitingRoom(props: ParticipantViewProps) {
-  const {room} = props;
+  const { room } = props;
   return (
     <Layout>
       <Container>
@@ -203,11 +206,11 @@ function WaitingRoom(props: ParticipantViewProps) {
 
         <div className={styles.instructionBlock}>
           <Image src={convertEmoji('🙇')} width={40} height={40} alt='raise hand emoji' />
-        <p><strong>Lower your hand</strong> when you&apos;re done talking.</p>
+          <p><strong>Lower your hand</strong> when you&apos;re done talking.</p>
         </div>
 
         {!room.disableReactions && <div className={styles.instructionBlock}>
-        <p>And <strong>React</strong> using emojis!</p>
+          <p>And <strong>React</strong> using emojis!</p>
           <Image src={convertEmoji('👏')} width={40} height={40} alt='raise hand emoji' />
         </div>}
 

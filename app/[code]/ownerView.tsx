@@ -1,20 +1,17 @@
 import { Participants, Room } from "./page";
 import QRCode from 'react-qr-code'
-import Button, { IconButton } from "@/components/ui/button";
+import Button, { getButtonStyling, IconButton } from "@/components/ui/button";
 import Layout from "@/components/ui/layout";
 import Container from "@/components/ui/container";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { app } from "@/components/data/firebase";
-import { getColor } from "@/components/ui/colors";
+import { getLightColor } from "@/components/ui/colors";
 import { useState } from "react";
 import styles from './ownerView.module.css';
 import Icon from "@mdi/react";
-import { mdiAccountGroup, mdiClose, mdiCog, mdiExitToApp, mdiEyeOff, mdiNotificationClearAll } from "@mdi/js";
-import twemoji from "twemoji";
-import Image from "next/image";
+import { mdiAccountGroup, mdiClose, mdiExitToApp, mdiEyeOff, mdiNotificationClearAll } from "@mdi/js";
 import ReactionsDisplay from "./components/reactions";
 import SpeakerView from "./components/speaker";
-import { database } from "firebase-admin";
 import { useStore } from "@/components/data/store";
 
 interface OwnerViewProps {
@@ -22,7 +19,6 @@ interface OwnerViewProps {
   displayCode: string,
   room: Room
 }
-
 
 export default function OwnerView(props: OwnerViewProps) {
   const { code, room, displayCode } = props;
@@ -33,7 +29,7 @@ export default function OwnerView(props: OwnerViewProps) {
   const [openModal, setOpenModal] = useState(false);
 
   if (room.ended) {
-    return <RoomSummary />
+    return <RoomSummary room={room} code={code} />
   }
 
   if (!room.started) {
@@ -48,6 +44,9 @@ export default function OwnerView(props: OwnerViewProps) {
       return;
     } else {
       remove(ref(database, `rooms/${code}/queue`))
+
+      // set queueTime (variable tracks how long someone is at the top)
+      set(ref(database, `rooms/${code}/queueTime`), Date.now());
       setConfirmDismiss(false);
     }
   }
@@ -55,10 +54,21 @@ export default function OwnerView(props: OwnerViewProps) {
 
   return (
     <>
-      <SpeakerView room={room} code={code} />
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        {/* the display of speakers */}
+        <div style={{ flexGrow: '1', height: '100v' }}>
+          <SpeakerView room={room} code={code} />
+        </div>
+        {/* show the leader board only if points are enabled */}
+        {room.pointsEnabled && <div className={styles.pointsMenu}>
+          <LeaderBoard room={room} />
+        </div>}
+      </div>
 
+      {/* join code at the bottom */}
       <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{displayCode}</strong></h2>
 
+      {/* qr code in bottom right */}
       <span className={styles.qrCode}>
         <QRCode value={`https://speakup.fyi/${displayCode}`} style={{ width: 'min(12vw, 12vh)', height: 'min(12vw, 12vh)' }} />
       </span>
@@ -76,26 +86,28 @@ export default function OwnerView(props: OwnerViewProps) {
         <IconButton style={{ padding: '0.25em 0.5em' }} onClick={() => setOpenModal(true)}>
           <h2 style={{ display: 'inline', marginRight: '0.25em' }}>{participants ? Object.keys(participants).length : '0'}</h2><Icon path={mdiAccountGroup} size={1.5} />
         </IconButton>
+
         {/* button to clear all participants */}
         <IconButton onClick={dismissAll}>
           <Icon path={mdiNotificationClearAll} size={1.5} />
           {confirmDismiss && <p style={{ fontWeight: 'bold', paddingRight: '0.5em' }} className={styles.fadeOut}>Click again to dismiss all hands</p>}
         </IconButton>
 
-        {/* settings button */}
-        <IconButton onClick={() => { }}>
-          <Icon path={mdiCog} size={1.5} />
-        </IconButton>
-
         {/* end room button */}
-        <IconButton onClick={() => { }}>
+        <IconButton onClick={() => {
+          const close = confirm('Are you sure you want to end the room?');
+          if (close) {
+            set(ref(database, `rooms/${code}/ended`), true);
+          }
+        }}>
           <Icon path={mdiExitToApp} size={1.5} />
         </IconButton>
       </span>
 
+      {/* floating reactions */}
       {reactions && <ReactionsDisplay reactions={reactions} />}
 
-
+      {/* modal to kick participants */}
       {openModal && <div className={styles.modalContainer}
         onClick={(e) => {
           if (e.target !== e.currentTarget) return;
@@ -110,7 +122,7 @@ export default function OwnerView(props: OwnerViewProps) {
             <Icon path={mdiClose} size={1} color='#000' />
           </IconButton>
 
-          <ParticipantList code={code} participants={participants} room={room} />
+          <ParticipantList code={code} room={room} />
         </div>
       </div>}
     </>
@@ -120,7 +132,6 @@ export default function OwnerView(props: OwnerViewProps) {
 
 function WaitingRoom(props: OwnerViewProps) {
   const { code, room, displayCode } = props;
-  const { participants } = room;
   const passcode = useStore(state => state.passcode);
   const hasPasscode = code !== displayCode;
   const [showPasscode, setShowPasscode] = useState(true);
@@ -144,19 +155,16 @@ function WaitingRoom(props: OwnerViewProps) {
           }}>
             <div style={{ width: '70%', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingRight: '2rem' }}>
               <h1>Go to speakup.fyi/<strong style={{ fontWeight: 'bolder' }}>{displayCode}</strong></h1>
-              {/* <h2>Click to show passcode</h2>
-               */}
+
+              {/* show passcode if one is set */}
               {!showPasscode && hasPasscode && <Button onClick={() => setShowPasscode(true)} disabled={showPasscode}>
                 <h2>Click to show passcode</h2>
               </Button>}
-
               {showPasscode && hasPasscode && <div style={{ display: 'flex', alignItems: 'center' }}>
                 <h1>Passcode: <strong style={{ fontWeight: 'bolder' }}>{passcode}</strong></h1>
-                {/* <IconButton }> */}
-                <button style={{appearance: 'none', border: 'none', backgroundColor: 'transparent', marginLeft: '1rem'}} onClick={() => setShowPasscode(false)}>
+                <button style={{ appearance: 'none', border: 'none', backgroundColor: 'transparent', marginLeft: '1rem' }} onClick={() => setShowPasscode(false)}>
                   <Icon path={mdiEyeOff} size={1.2} />
                 </button>
-                {/* </IconButton> */}
               </div>}
 
             </div>
@@ -172,7 +180,7 @@ function WaitingRoom(props: OwnerViewProps) {
 
         <h2>participants:</h2>
 
-        <ParticipantList code={code} participants={participants} room={room} />
+        <ParticipantList code={code} room={room} />
 
         <span style={{ position: 'fixed', right: '2em', bottom: '2em' }}>
 
@@ -183,39 +191,35 @@ function WaitingRoom(props: OwnerViewProps) {
   );
 }
 
-function RoomSummary() {
+interface RoomSummaryProps {
+  room: Room,
+  code: string
+}
+
+function RoomSummary(props: RoomSummaryProps) {
+  const { room, code } = props;
   return (
     <Layout>
       <Container>
         <div>
           <h1 style={{ textAlign: 'center' }}>The Room has Ended</h1>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row'
-          }}>
-            <div style={{ width: '70%', display: 'flex', alignItems: 'center' }}>
-              {/* <h1>Go to speakup.fyi/<strong style={{ fontWeight: 'bolder' }}>{code}</strong></h1> */}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-              {/* <QRCode value={`https://speakup.fyi/${code}`} style={{ width: 'min(15vw, 15vh)', height: 'min(15vw, 15vh)' }} /> */}
-              <p style={{ margin: '0.5em' }}>or scan to join</p>
-            </div>
-          </div>
-
         </div>
 
         <hr />
 
         <h2>participants:</h2>
+        <ParticipantList room={room} code={code} />
+
+        {room.points && <LeaderBoard room={room} />}
 
       </Container>
     </Layout>
   );
 }
 
-function ParticipantList(props: { participants?: Participants, code: string, room: Room }) {
-  const { participants, code, room } = { ...props };
+function ParticipantList(props: { code: string, room: Room }) {
+  const { code, room } = { ...props };
   const [kickConfirm, setKickConfirm] = useState<string | null>();
   const database = getDatabase(app);
 
@@ -229,10 +233,12 @@ function ParticipantList(props: { participants?: Participants, code: string, roo
       if (room.queue && id in room.queue) {
         remove(ref(database, `rooms/${code}/queue/${id}`));
       }
+      if (room.points && id in room.points) {
+        remove(ref(database, `rooms/${code}/points/${id}`));
+      }
       setKickConfirm(null);
     } else {
       // clicked another name
-      console.log(2)
       setKickConfirm(null);
     }
 
@@ -245,14 +251,40 @@ function ParticipantList(props: { participants?: Participants, code: string, roo
         flexDirection: 'row',
         flexWrap: 'wrap'
       }}>
-        {participants && Object.entries(participants).map(([id, name], index) =>
+        {room.participants && Object.entries(room.participants).map(([id, name], index) =>
           <span key={id} style={{ margin: '0 .5em' }}>
-            <Button onClick={() => handleKickParticipant(id)} style={{ backgroundColor: getColor(index) }}>
-              <h3 className={kickConfirm === id ? styles.fadeOut : ''}>{kickConfirm === id ? 'click again to kick' : name}</h3>
+            <Button onClick={() => handleKickParticipant(id)} style={{ backgroundColor: convertUidToColor(id) }}>
+              <h3 className={kickConfirm === id ? styles.fadeOut : ''} style={{ color: "#000" }}>{kickConfirm === id ? 'click again to kick' : name}</h3>
             </Button>
           </span>
         )}
       </div>
     </>
   );
+}
+
+interface LeaderBoardProps {
+  room: Room
+}
+
+function LeaderBoard(props: LeaderBoardProps) {
+  const { room } = props;
+  const { participants } = room;
+  return (
+    <>
+      <h1 style={{ textAlign: 'center' }}>Leaderboard</h1>
+      {participants && room.points && Object.entries(room.points).sort((a, b) => b[1] - a[1]).map(([key, value]) =>
+        <span className={getButtonStyling()} key={key} style={{ backgroundColor: convertUidToColor(key), color: "#000" }}>
+          <h2>{participants[key]} - <p style={{ fontWeight: 'normal', display: 'inline' }}>{value} seconds</p></h2>
+        </span>)}
+    </>
+  );
+}
+
+export function convertUidToColor(uid: string) {
+  let index = 0;
+  for (const letter of uid) {
+    index += letter.charCodeAt(0);
+  }
+  return getLightColor(index);
 }

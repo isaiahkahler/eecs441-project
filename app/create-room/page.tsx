@@ -34,7 +34,7 @@ export default function CreateRoom() {
   const [loading, setLoading] = useState(false);
 
   const [requirePasscode, setRequirePasscode] = useState(false);
-  const [points, setPoints] = useState(false);
+  const [pointsEnabled, setPointsEnabled] = useState(false);
   const [disableReactions, setDisableReactions] = useState(false);
   const [customReactions, setCustomReactions] = useState(false);
 
@@ -66,7 +66,8 @@ export default function CreateRoom() {
       const options: any = {
         passcode: requirePasscode && passcodeValue,
         disableReactions: disableReactions,
-        customReactions: !disableReactions && customReactions && emojiList
+        customReactions: !disableReactions && customReactions && emojiList,
+        pointsEnabled: pointsEnabled
       };
       const badKeys = Object.keys(options).filter((key) => !options[key]);
       for (const key of badKeys) {
@@ -107,7 +108,7 @@ export default function CreateRoom() {
             <h3 style={{ display: 'inline', marginRight: '1rem' }}>passcode:</h3>
             <Input value={passcodeValue} onChange={e => setPasscodeValue(e.currentTarget.value)} />
           </div>}
-          <InputCheckbox label='Earn points' checked={points} onChange={e => setPoints(e.currentTarget.checked)} />
+          <InputCheckbox label='Earn points' checked={pointsEnabled} onChange={e => setPointsEnabled(e.currentTarget.checked)} />
           <InputCheckbox label='Disable reactions' checked={disableReactions} onChange={e => setDisableReactions(e.currentTarget.checked)} />
           {!disableReactions && <div style={{ marginLeft: '2rem' }}>
             <InputCheckbox label='Custom reactions' checked={customReactions} onChange={e => setCustomReactions(e.currentTarget.checked)} />

@@ -47,3 +47,7 @@ export function IconButton(props: DetailedHTMLProps<ButtonHTMLAttributes<HTMLBut
 export function InputButton(props: HTMLProps<HTMLInputElement>) {
   return <input {...props} className={styles.button} style={{ fontSize: '1.5em', fontWeight: 'bold', padding: '1rem', ...props.style }} />;
 }
+
+export function getButtonStyling() {
+  return styles.button;
+}

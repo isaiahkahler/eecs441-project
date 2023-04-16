@@ -1,12 +1,12 @@
 import { app } from '@/components/data/firebase';
 import { useStore } from '@/components/data/store';
 import { IconButton } from '@/components/ui/button';
-import { getLightColor } from '@/components/ui/colors';
 import { mdiArrowDownRight } from '@mdi/js';
 import Icon from '@mdi/react';
 import { User } from 'firebase/auth';
-import { getDatabase, ref, remove } from 'firebase/database';
+import { getDatabase, ref, remove, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
+import { convertUidToColor } from '../../ownerView';
 import { Room } from '../../page';
 import styles from './speaker.module.css'
 
@@ -18,14 +18,17 @@ interface SpeakerViewProps {
 
 export default function SpeakerView(props: SpeakerViewProps) {
   const { room, code } = props;
-  const { queue, participants } = room;
+  const { queue, participants, points } = room;
   const ownUid = props.participant ? props.participant.uid : null;
   const database = getDatabase(app);
 
 
   const [currentTime, setCurrentTime] = useState(Date.now());
-  const [queueTime, setQueueTime] = useState(Date.now());
   const [lastPerson, setLastPerson] = useState<[string, number] | null>(null);
+  const [gainPoints, setGainPoints] = useState<number | null>(null);
+
+  const [lastQueueTime, setLastQueueTime] = useState<number>(0);
+  const queueTime = room.queueTime ? room.queueTime : 0;
 
   const user = useStore(state => state.user);
 
@@ -54,22 +57,53 @@ export default function SpeakerView(props: SpeakerViewProps) {
     if (firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
       return
     }
-    
+    if (firstInLine === null && lastPerson === null) {
+      return
+    }
+
+    // console.log('update last person');
     setLastPerson(firstInLine);
-    setQueueTime(Date.now());
+    setLastQueueTime(queueTime);
     setCurrentTime(Date.now());
-  }, [firstInLine, lastPerson]);
+  }, [firstInLine, lastPerson, queueTime]);
+
+  // when the user leaves the top of the queue, award them points
+  useEffect(() => {
+    if (firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
+      return
+    }
+    if (lastPerson && lastPerson[0] === ownUid) {
+      // console.log(`you were at the top for ${queueTime - lastQueueTime}`)
+      const timeDifference = queueTime - lastQueueTime;
+      if (timeDifference > 5000) {
+        setGainPoints(timeDifference); 
+      }
+    } 
+  }, [firstInLine, lastPerson, ownUid, queueTime, lastQueueTime])
+
+  // give the user points once
+  useEffect(() => {
+    if(!gainPoints) return;
+    if(!ownUid) return;
+
+    const currentPoints = points ? (ownUid in points ? points[ownUid] : 0) : 0;
+    // console.log('setting points! current:', currentPoints, 'new:', Math.floor(gainPoints / 1000))
+    set(ref(database, `rooms/${code}/points/${ownUid}`), currentPoints + Math.floor(gainPoints / 1000));
+    setGainPoints(null);
+  }, [code, database, gainPoints, ownUid, points])
 
   // clear the first speaker if the admin clicks the dismiss button
   const dismissFirstSpeaker = () => {
     if (!firstInLine) return;
+    // remove from queue
     remove(ref(database, `rooms/${code}/queue/${firstInLine[0]}`));
+
+    // set queueTime
+    set(ref(database, `rooms/${code}/queueTime`), Date.now());
   }
 
   return (
     <>
-
-
       {/* container for the first speaker */}
       <div style={{
         display: 'flex',
@@ -78,7 +112,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
         padding: '2em 0'
       }}>
         {/* message displayed if queue is empty */}
-        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`} style={{boxShadow: 'none', border: '1px solid #aaa'}}>
+        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`} style={{ boxShadow: 'none', border: '1px solid #aaa' }}>
           <h1>The Queue is Empty</h1>
           <h2>Raise your hand to join</h2>
         </div>}
@@ -88,13 +122,15 @@ export default function SpeakerView(props: SpeakerViewProps) {
             className={`${styles.fadeInUp} ${styles.speakingCard}`}
             style={{
               maxWidth: '680px',
-              backgroundColor: getLightColor(firstInLine[1]),
+              backgroundColor: convertUidToColor(firstInLine[0]),
               position: 'relative',
             }}>
+            {/* timer */}
             <h2 style={{
               position: 'absolute',
               right: '1em',
-              top: '0em'
+              top: '0em',
+              color: 'inherit'
             }}>{Math.floor((currentTime - queueTime) / 1000)}</h2>
 
             {/* admin button to dismiss speaker */}
@@ -122,7 +158,6 @@ export default function SpeakerView(props: SpeakerViewProps) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        // padding: '0 1em',
         position: 'relative'
 
       }}>
@@ -133,11 +168,10 @@ export default function SpeakerView(props: SpeakerViewProps) {
             className={`${styles.fadeInUp} ${styles.speakingCard}`}
             style={{
               maxWidth: `calc(680px - ${(index + 1) * 50}px)`,
-              backgroundColor: getLightColor(timestamp),
+              backgroundColor: convertUidToColor(uid),
               position: 'absolute',
               zIndex: `${500 - index}`,
               top: `${index * 24}vmin`,
-              // margin: '2em'
             }}>
             <h1 style={{
               fontSize: `calc(10vmin - ${(index + 1) * 10}px)`,

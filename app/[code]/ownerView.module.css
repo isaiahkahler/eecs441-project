@@ -17,7 +17,7 @@
   align-items: center;
   z-index: 1000;
   top: 0;
-  background-color: rgba(0,0,0,0.25);
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .modal {
@@ -29,8 +29,22 @@
   position: relative;
 }
 
+.pointsMenu {
+  display: block;
+  width: max(20vw, 300px);
+  height: 100vh;
+  padding: 0 1rem;
+}
+
 @media screen and (max-width: 680px) {
   .qrCode {
+    display: none;
+  }
+}
+
+
+@media screen and (max-width: 800px) {
+  .pointsMenu {
     display: none;
   }
 }
@@ -44,5 +58,3 @@
     opacity: 0;
   }
 }
-
-

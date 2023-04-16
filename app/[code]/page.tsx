@@ -24,7 +24,10 @@ export interface Room {
   ended?: true,
   hasPasscode?: true,
   disableReactions?: true,
-  customReactions?: string
+  customReactions?: string,
+  pointsEnabled?: true,
+  points?: ParticipantPoints,
+  queueTime?: number
 }
 
 export interface Participants {
@@ -35,6 +38,10 @@ export interface QueueParticipant {
   [participant: string]: number
 }
 
+export interface ParticipantPoints {
+  [participant: string]: number
+}
+
 export interface Reaction {
   [timestamp: number]: string
 }
@@ -42,7 +49,6 @@ export interface Reaction {
 export default function ClassClient() {
   const pathname = usePathname() || '/';
   const displayCode = pathname.substr(1).toUpperCase();
-  // const [displayCode, setDisplayCode] = useState(pathname.substr(1).toUpperCase());
   const auth = getAuth(app);
   const database = getDatabase(app);
   // useNoSleep(true);
@@ -54,11 +60,10 @@ export default function ClassClient() {
   const setPasscode = useStore(state => state.setPasscode);
 
   const code = passcode ? CryptoJS.MD5(displayCode + passcode).toString() : displayCode;
-  console.log('has passcode?', passcode)
 
   // effect: sign in the user with an anonymous account
   useEffect(() => {
-    console.log('signing in')
+    // console.log('signing in')
     signInAnonymously(auth).catch(error => console.error(`Couldn't sign in: ${error}`));
   }, [auth]);
 
