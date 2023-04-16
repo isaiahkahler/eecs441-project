@@ -57,7 +57,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
     set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
 
     // set queue time if they are the first in the queue (variable tracks how long someone is at the top)
-    if(!room.queue){
+    if (!room.queue) {
       set(ref(database, `rooms/${code}/queueTime`), Date.now());
     }
   }
@@ -66,7 +66,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
     // remove from queue
     remove(ref(database, `rooms/${code}/queue/${participant.uid}`));
     // set queueTime (variable tracks how long someone is at the top)
-    if(firstInLine && firstInLine[0] === participant.uid){
+    if (firstInLine && firstInLine[0] === participant.uid) {
       set(ref(database, `rooms/${code}/queueTime`), Date.now());
     }
     setCoolDown(true);
@@ -127,15 +127,40 @@ export default function ParticipantView(props: ParticipantViewProps) {
           </button>
           {!room.disableReactions && <EmojiMenu emojis={room.customReactions ? room.customReactions.split(',') : ['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleReactionClick} />}
 
+          {room.pointsEnabled && participant.uid && <PointsMessage room={room} uid={participant.uid} /> }
         </div>
       </div>
 
       {reactions && <ReactionsDisplay reactions={reactions} />}
 
+
     </>
   );
 }
 
+interface PointsMessage {
+  room: Room,
+  uid: string
+}
+
+function PointsMessage(props: PointsMessage) {
+  const { room, uid } = props;
+  const sortedPoints = room.points ? Object.entries(room.points).sort((a, b) => a[1] - b[1]) : [];
+  const myIndex = sortedPoints.findIndex(element => element[0] == uid);
+  let tag = '';
+  if(myIndex + 1 < sortedPoints.length && myIndex !== -1 && room.participants) {
+    if(sortedPoints[myIndex + 1][1] === sortedPoints[myIndex][1]){
+      tag = ` You're tied with ${room.participants[sortedPoints[myIndex + 1][0]]}!`
+    } else {
+      tag = `You're ${sortedPoints[myIndex+1][1] - sortedPoints[myIndex][1]} points behind ${room.participants[sortedPoints[myIndex + 1][0]]}!`
+    }
+  } else if (myIndex + 1 === sortedPoints.length) {
+    tag = `You have the highest score!`
+  }
+  return (
+    <p>You have {room.points ? (uid in room.points ? room.points[uid] : 0) : 0} points. {tag}</p>
+  );
+}
 
 
 
