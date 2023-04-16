@@ -8,6 +8,8 @@ import { ref, get, set } from 'firebase/database'
 import { initializeApp, cert, getApp, App } from 'firebase-admin/app'
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth'
 import { getDatabase } from 'firebase-admin/database'
+import { Room } from '@/app/[code]/page'
+import CryptoJS from 'crypto-js'
 
 type Data = {
   code: string
@@ -74,6 +76,11 @@ export default async function handler(
     return;
   }
 
+  const { passcode, disableReactions, customReactions } = req.query;
+  console.log('===================================')
+  console.log('req.query', req.query)
+  console.log('===================================')
+
   const db = getDatabase(app);
   let roomExists = true;
   let randomCode = '';
@@ -86,10 +93,29 @@ export default async function handler(
       roomExists = false;
       console.log('room doesnt exist!')
 
-      await set(ref(db as any, `rooms/${randomCode}`), {
+      const initialRoom: Room = {
         owner: userToken.uid,
         expiration: Date.now() + (1000 * 60 * 60 * 24 * 2)
-      });
+      }
+      if(passcode) {
+        initialRoom.hasPasscode = true;
+      } 
+      if(disableReactions) {
+        initialRoom.disableReactions = true;
+      }
+      if(customReactions && !Array.isArray(customReactions)){
+        initialRoom.customReactions = customReactions;
+      }
+      await set(ref(db as any, `rooms/${randomCode}`), initialRoom);
+
+      if(passcode) {
+        // remove the hasPasscode value
+        initialRoom.hasPasscode && delete initialRoom.hasPasscode;
+        // get hash of room code + password
+        const hash = CryptoJS.MD5(randomCode + passcode).toString();
+        await set(ref(db as any, `rooms/${hash}`), initialRoom);
+        console.log('made passcode room!')
+      }
       console.log('made room!')
 
     }

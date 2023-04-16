@@ -15,7 +15,9 @@ interface GlobalState {
   // classCode: string | null,
   // setClassCode: (code: string) => void,
   user: User | null
-  setUser: (user: User | null) => void
+  setUser: (user: User | null) => void,
+  passcode: string | null,
+  setPasscode: (passcode: string | null) => void
 }
 
 export const useStore = create<GlobalState>()(
@@ -25,7 +27,9 @@ export const useStore = create<GlobalState>()(
         // classCode: null,
         // setClassCode: (code) => set((state) => ({ classCode: code })),
         user: null,
-        setUser: (_user) => set((state) => ({user: _user}))
+        setUser: (_user) => set((state) => ({user: _user})),
+        passcode: null,
+        setPasscode: (_passcode) => set((state) => ({passcode: _passcode})),
       }),
       {
         name: 'session-storage',

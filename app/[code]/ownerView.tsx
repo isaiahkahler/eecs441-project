@@ -9,27 +9,32 @@ import { getColor } from "@/components/ui/colors";
 import { useState } from "react";
 import styles from './ownerView.module.css';
 import Icon from "@mdi/react";
-import { mdiAccountGroup, mdiClose, mdiCog, mdiNotificationClearAll } from "@mdi/js";
+import { mdiAccountGroup, mdiClose, mdiCog, mdiExitToApp, mdiEyeOff, mdiNotificationClearAll } from "@mdi/js";
 import twemoji from "twemoji";
 import Image from "next/image";
 import ReactionsDisplay from "./components/reactions";
 import SpeakerView from "./components/speaker";
 import { database } from "firebase-admin";
+import { useStore } from "@/components/data/store";
 
 interface OwnerViewProps {
   code: string,
+  displayCode: string,
   room: Room
 }
 
 
 export default function OwnerView(props: OwnerViewProps) {
-  const { code, room } = props;
+  const { code, room, displayCode } = props;
   const { participants, queue, reactions } = room;
   const database = getDatabase(app);
 
   const [confirmDismiss, setConfirmDismiss] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  if (room.ended) {
+    return <RoomSummary />
+  }
 
   if (!room.started) {
     return <WaitingRoom {...props} />
@@ -52,10 +57,10 @@ export default function OwnerView(props: OwnerViewProps) {
     <>
       <SpeakerView room={room} code={code} />
 
-      <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{code}</strong></h2>
+      <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{displayCode}</strong></h2>
 
       <span className={styles.qrCode}>
-        <QRCode value={`https://speakup.fyi/${code}`} style={{ width: 'min(12vw, 12vh)', height: 'min(12vw, 12vh)' }} />
+        <QRCode value={`https://speakup.fyi/${displayCode}`} style={{ width: 'min(12vw, 12vh)', height: 'min(12vw, 12vh)' }} />
       </span>
 
       {/* top left corner container with buttons  */}
@@ -78,9 +83,14 @@ export default function OwnerView(props: OwnerViewProps) {
         </IconButton>
 
         {/* settings button */}
-        {/* <IconButton onClick={() => {}}>
+        <IconButton onClick={() => { }}>
           <Icon path={mdiCog} size={1.5} />
-        </IconButton> */}
+        </IconButton>
+
+        {/* end room button */}
+        <IconButton onClick={() => { }}>
+          <Icon path={mdiExitToApp} size={1.5} />
+        </IconButton>
       </span>
 
       {reactions && <ReactionsDisplay reactions={reactions} />}
@@ -109,8 +119,11 @@ export default function OwnerView(props: OwnerViewProps) {
 
 
 function WaitingRoom(props: OwnerViewProps) {
-  const { code, room } = props;
+  const { code, room, displayCode } = props;
   const { participants } = room;
+  const passcode = useStore(state => state.passcode);
+  const hasPasscode = code !== displayCode;
+  const [showPasscode, setShowPasscode] = useState(true);
 
   const database = getDatabase(app);
 
@@ -129,11 +142,26 @@ function WaitingRoom(props: OwnerViewProps) {
             display: 'flex',
             flexDirection: 'row'
           }}>
-            <div style={{ width: '70%', display: 'flex', alignItems: 'center' }}>
-              <h1>Go to speakup.fyi/<strong style={{ fontWeight: 'bolder' }}>{code}</strong></h1>
+            <div style={{ width: '70%', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingRight: '2rem' }}>
+              <h1>Go to speakup.fyi/<strong style={{ fontWeight: 'bolder' }}>{displayCode}</strong></h1>
+              {/* <h2>Click to show passcode</h2>
+               */}
+              {!showPasscode && hasPasscode && <Button onClick={() => setShowPasscode(true)} disabled={showPasscode}>
+                <h2>Click to show passcode</h2>
+              </Button>}
+
+              {showPasscode && hasPasscode && <div style={{ display: 'flex', alignItems: 'center' }}>
+                <h1>Passcode: <strong style={{ fontWeight: 'bolder' }}>{passcode}</strong></h1>
+                {/* <IconButton }> */}
+                <button style={{appearance: 'none', border: 'none', backgroundColor: 'transparent', marginLeft: '1rem'}} onClick={() => setShowPasscode(false)}>
+                  <Icon path={mdiEyeOff} size={1.2} />
+                </button>
+                {/* </IconButton> */}
+              </div>}
+
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-              <QRCode value={`https://speakup.fyi/${code}`} style={{ width: 'min(15vw, 15vh)', height: 'min(15vw, 15vh)' }} />
+              <QRCode value={`https://speakup.fyi/${displayCode}`} style={{ width: 'min(15vw, 15vh)', height: 'min(15vw, 15vh)' }} />
               <p style={{ margin: '0.5em' }}>or scan to join</p>
             </div>
           </div>
@@ -151,6 +179,37 @@ function WaitingRoom(props: OwnerViewProps) {
           <Button onClick={handleStartRoom}><h2>Start →</h2></Button>
         </span>
       </Container>
+    </Layout >
+  );
+}
+
+function RoomSummary() {
+  return (
+    <Layout>
+      <Container>
+        <div>
+          <h1 style={{ textAlign: 'center' }}>The Room has Ended</h1>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row'
+          }}>
+            <div style={{ width: '70%', display: 'flex', alignItems: 'center' }}>
+              {/* <h1>Go to speakup.fyi/<strong style={{ fontWeight: 'bolder' }}>{code}</strong></h1> */}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              {/* <QRCode value={`https://speakup.fyi/${code}`} style={{ width: 'min(15vw, 15vh)', height: 'min(15vw, 15vh)' }} /> */}
+              <p style={{ margin: '0.5em' }}>or scan to join</p>
+            </div>
+          </div>
+
+        </div>
+
+        <hr />
+
+        <h2>participants:</h2>
+
+      </Container>
     </Layout>
   );
 }
@@ -167,7 +226,7 @@ function ParticipantList(props: { participants?: Participants, code: string, roo
     } else if (kickConfirm === id) {
       // kick player
       remove(ref(database, `rooms/${code}/participants/${id}`));
-      if(room.queue && id in room.queue) {
+      if (room.queue && id in room.queue) {
         remove(ref(database, `rooms/${code}/queue/${id}`));
       }
       setKickConfirm(null);

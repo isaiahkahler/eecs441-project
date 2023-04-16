@@ -10,6 +10,11 @@ interface EmojiMenuProps {
 
 }
 
+export function convertEmoji(emoji: string): string {
+  const regex = /<img.*?src="(.*?)"/;
+  return (twemoji.parse(emoji, { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
+}
+
 export default function EmojiMenu(props: EmojiMenuProps) {
   const { emojis, onEmojiClick } = props;
   const [reactionClicks, setReactionClicks] = useState<number[]>([]);
@@ -44,19 +49,11 @@ export default function EmojiMenu(props: EmojiMenuProps) {
     return () => clearTimeout(timeout);
   }, [coolDownInMilliseconds]);
 
-  const regex = /<img.*?src="(.*?)"/;
-  const emojiElements = emojis.map((emoji) => {
-    let emojiSrc = (twemoji.parse(emoji, { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
-    return (
-      <IconButton className={styles.emojiButton} key={emoji} onClick={() => onReactionClick(emoji)}>
-        <Image src={emojiSrc} alt={`${emoji} reaction`} width={30} height={30} />
-      </IconButton>
-    );
-  });
-
   return (
     <div className={styles.emojiMenu}>
-      {emojiElements}
+      {emojis.map(emoji => <IconButton className={styles.emojiButton} key={emoji} onClick={() => onReactionClick(emoji)}>
+        <Image src={convertEmoji(emoji)} alt={`${emoji} reaction`} width={30} height={30} />
+      </IconButton>)}
       {coolDown && <span className={styles.warningContainer}><p>too many reactions</p></span>}
     </div>
   )

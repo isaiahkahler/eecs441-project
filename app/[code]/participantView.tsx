@@ -5,7 +5,7 @@ import { User } from "firebase/auth";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Room } from "./page";
-import EmojiMenu from "@/components/ui/emoji";
+import EmojiMenu, { convertEmoji } from "@/components/ui/emoji";
 import Image from "next/image"
 import twemoji from "twemoji"
 import Layout from "@/components/ui/layout";
@@ -68,15 +68,15 @@ export default function ParticipantView(props: ParticipantViewProps) {
   }
 
   const handleReactionClick = (emoji: string) => {
-      (async () => {
-        // console.log(emoji);
-        const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
-        set(ref(database, reactionPath), emoji);
+    (async () => {
+      // console.log(emoji);
+      const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
+      set(ref(database, reactionPath), emoji);
 
-        setTimeout(() => {
-          remove(ref(database, reactionPath));
-        }, 5000);
-      })();
+      setTimeout(() => {
+        remove(ref(database, reactionPath));
+      }, 5000);
+    })();
   }
 
   // get or change name from the list of participants, if the user already joined 
@@ -103,8 +103,8 @@ export default function ParticipantView(props: ParticipantViewProps) {
     .filter(item => item !== undefined && item !== null && item !== '') : [];
 
   const regex = /<img.*?src="(.*?)"/;
-  let lowerHandEmoji = (twemoji.parse("🙇", { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
-  let raiseHandEmoji = (twemoji.parse("🙋", { folder: 'svg', ext: '.svg' }).match(regex) || ['', ''])[1];
+  let lowerHandEmoji =  convertEmoji("🙇");
+  let raiseHandEmoji = convertEmoji("🙋");
 
   if (!room.started) {
     return <WaitingRoom {...props} />
@@ -126,7 +126,7 @@ export default function ParticipantView(props: ParticipantViewProps) {
             <p className={styles.raiseLowerText}>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
             <div className={`${styles.raiseLowerCoolDownOverlay} ${coolDown ? styles.raiseLowerCoolDownOverlayAnimation : ''}`} />
           </button>
-          <EmojiMenu emojis={['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleReactionClick} />
+          {!room.disableReactions && <EmojiMenu emojis={room.customReactions ? room.customReactions.split(',') : ['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleReactionClick} />}
 
         </div>
       </div>
@@ -184,15 +184,33 @@ function EnterNameForm(props: EnterNameFormProps) {
 }
 
 function WaitingRoom(props: ParticipantViewProps) {
+  const {room} = props;
   return (
     <Layout>
       <Container>
         <h1>Waiting for the room to start...</h1>
         <h2>How to use SpeakUp:</h2>
-        <p><strong>Raise your hand</strong> to join the queue.</p>
-        <p><strong>SpeakUp!</strong> when its your turn.</p>
+
+        <div className={styles.instructionBlock}>
+          <Image src={convertEmoji('🙋')} width={40} height={40} alt='raise hand emoji' />
+          <p style={{ fontSize: 'large' }}><strong>Raise your hand</strong> to join the queue.</p>
+        </div>
+
+        <div className={styles.instructionBlock}>
+          <p><strong>SpeakUp!</strong> when its your turn.</p>
+          <Image src={convertEmoji('🗣️')} width={40} height={40} alt='raise hand emoji' />
+        </div>
+
+        <div className={styles.instructionBlock}>
+          <Image src={convertEmoji('🙇')} width={40} height={40} alt='raise hand emoji' />
         <p><strong>Lower your hand</strong> when you&apos;re done talking.</p>
+        </div>
+
+        {!room.disableReactions && <div className={styles.instructionBlock}>
         <p>And <strong>React</strong> using emojis!</p>
+          <Image src={convertEmoji('👏')} width={40} height={40} alt='raise hand emoji' />
+        </div>}
+
       </Container>
     </Layout>
   );

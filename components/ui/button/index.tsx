@@ -27,11 +27,11 @@ export function LinkButton({ children, ...props }: PropsWithChildren<LinkProps>)
   );
 }
 
-export function TransparentButton(props: ButtonProps) {
+export function TransparentButton(props: DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) {
   return (
-    <a {...props} className={`${styles.button} ${styles.transparentButton}`} >
+    <button type="button" {...props} className={`${styles.button} ${styles.transparentButton}`} >
       {props.children}
-    </a>
+    </button>
   );
 
 }
