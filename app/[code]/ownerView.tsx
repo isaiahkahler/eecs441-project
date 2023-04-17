@@ -55,7 +55,7 @@ export default function OwnerView(props: OwnerViewProps) {
   }
 
   // prompt the user to enter a name if they don't have one
-  if (!name) {
+  if (!name && room.participateAsHost) {
     return <EnterNameForm setParticipantName={setHostName} room={room} />
   };
 
