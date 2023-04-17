@@ -5,9 +5,9 @@ import { mdiArrowDownRight } from '@mdi/js';
 import Icon from '@mdi/react';
 import { User } from 'firebase/auth';
 import { getDatabase, ref, remove, set } from 'firebase/database';
-import { useEffect, useState } from 'react';
+import React, { HTMLProps, PropsWithChildren, useEffect, useId, useState } from 'react';
 import { convertUidToColor } from '../../ownerView';
-import { Room } from '../../page';
+import { Participants, QueueParticipant, Room } from '../../page';
 import styles from './speaker.module.css'
 
 interface SpeakerViewProps {
@@ -30,6 +30,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
   const [lastQueueTime, setLastQueueTime] = useState<number>(0);
   const queueTime = room.queueTime ? room.queueTime : 0;
 
+
   const user = useStore(state => state.user);
 
   // update the current time every second
@@ -50,7 +51,45 @@ export default function SpeakerView(props: SpeakerViewProps) {
     .filter(item => item !== undefined && item !== null) : [];
 
   const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
-  const others = sortedQueue.length > 1 ? sortedQueue.slice(1) : null;
+
+  const [lastSortedQueue, setLastSortedQueue] = useState(sortedQueue);
+  const [exitingParticipants, setExitingParticipants] = useState<string[]>([]);
+
+  function getQueuePosition(uid: string) {
+    return lastSortedQueue.findIndex(value => value[0] === uid);
+  }
+
+  useEffect(() => {
+    console.log('exiting:', exitingParticipants)
+  }, [exitingParticipants])
+
+  useEffect(() => {
+    function arrayEquals(a: [string, number][], b: [string, number][]) {
+      return Array.isArray(a) &&
+        Array.isArray(b) &&
+        a.length === b.length &&
+        a.every((val, index) => val[0] === b[index][0] && val[1] === b[index][1]);
+    }
+
+    let sortedQueue = queue ? Object.entries(queue)
+      .sort((a, b) => a[1] - b[1])
+      .filter(item => item !== undefined && item !== null) : [];
+
+    if (arrayEquals(sortedQueue, lastSortedQueue)) {
+      return;
+    }
+
+    const newKeys = new Set(sortedQueue.map(item => item[0]));
+    const deletedKeys = lastSortedQueue.map(item => item[0]).filter((uid) => !newKeys.has(uid));
+    // const names = deletedKeys.map(([uid]) => participants && uid in participants ? participants[uid] : '')
+    console.log('deleted names:', deletedKeys)
+    if (deletedKeys.length === 0) {
+      setLastSortedQueue(sortedQueue);
+    } else {
+      setTimeout(() => setLastSortedQueue(sortedQueue), 500);
+    }
+    setExitingParticipants(deletedKeys);
+  }, [lastSortedQueue, queue]);
 
   // if the first person in line changes, update the timer 
   useEffect(() => {
@@ -76,15 +115,15 @@ export default function SpeakerView(props: SpeakerViewProps) {
       // console.log(`you were at the top for ${queueTime - lastQueueTime}`)
       const timeDifference = queueTime - lastQueueTime;
       if (timeDifference > 5000) {
-        setGainPoints(timeDifference); 
+        setGainPoints(timeDifference);
       }
-    } 
+    }
   }, [firstInLine, lastPerson, ownUid, queueTime, lastQueueTime])
 
   // give the user points once
   useEffect(() => {
-    if(!gainPoints) return;
-    if(!ownUid) return;
+    if (!gainPoints) return;
+    if (!ownUid) return;
 
     const currentPoints = points ? (ownUid in points ? points[ownUid] : 0) : 0;
     // console.log('setting points! current:', currentPoints, 'new:', Math.floor(gainPoints / 1000))
@@ -104,85 +143,68 @@ export default function SpeakerView(props: SpeakerViewProps) {
 
   return (
     <>
-      {/* container for the first speaker */}
       <div style={{
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '2em 0'
-      }}>
-        {/* message displayed if queue is empty */}
-        {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`} style={{ boxShadow: 'none', border: '1px solid #aaa' }}>
-          <h1>The Queue is Empty</h1>
-          <h2>Raise your hand to join</h2>
-        </div>}
-
-        {firstInLine &&
-          <div
-            className={`${styles.fadeInUp} ${styles.speakingCard}`}
-            style={{
-              maxWidth: '680px',
-              backgroundColor: convertUidToColor(firstInLine[0]),
-              position: 'relative',
-            }}>
-            {/* timer */}
-            <h2 style={{
-              position: 'absolute',
-              right: '1em',
-              top: '0em',
-              color: 'inherit'
-            }}>{Math.floor((currentTime - queueTime) / 1000)}</h2>
-
-            {/* admin button to dismiss speaker */}
-            {user && user.uid && user.uid === room.owner && <IconButton
-              style={{ position: 'absolute', right: '1em', bottom: '0em' }}
-              onClick={dismissFirstSpeaker}
-            >
-              <Icon path={mdiArrowDownRight} size={1} />
-            </IconButton>}
-
-            <h1 style={{
-              fontSize: '10vmin',
-              margin: '0'
-            }}>
-              {ownUid && ownUid === firstInLine[0] ? 'you' : (participants ? participants[firstInLine[0]] : '')}
-            </h1>
-            <p>{ownUid && ownUid === firstInLine[0] ? 'are speaking' : 'is speaking'}</p>
-          </div>
-        }
-
-      </div>
-
-      {/* container for the other speakers in line */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: 'relative'
-
+        height: '100vh',
+        width: '100%',
+        justifyContent: 'center'
       }}>
 
-        {others && others.map(([uid, timestamp], index) =>
-          <div
-            key={uid}
-            className={`${styles.fadeInUp} ${styles.speakingCard}`}
-            style={{
-              maxWidth: `calc(680px - ${(index + 1) * 50}px)`,
-              backgroundColor: convertUidToColor(uid),
-              position: 'absolute',
-              zIndex: `${500 - index}`,
-              top: `${index * 24}vmin`,
-            }}>
-            <h1 style={{
-              fontSize: `calc(10vmin - ${(index + 1) * 10}px)`,
-              margin: '0'
-            }}>
-              {ownUid && ownUid === uid ? 'you' : (participants ? participants[uid] : '')}
-            </h1>
-            {index === 0 ? <p>{ownUid && ownUid === uid ? 'are next' : 'is next'}</p> : <p>after</p>}
-          </div>
-        )}
+        <div style={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '2em 0',
+          maxWidth: '680px',
+          position: 'relative',
+          margin: '0 1rem'
+        }}>
+
+          {participants && Object.entries(participants).map(([uid, participantName]) => {
+            const index = getQueuePosition(uid);
+            const isMyself = ownUid && ownUid === uid;
+            if (index === -1 || index > 9) {
+              return <></>;
+            }
+
+            return (
+              <div
+                key={uid}
+                className={`${styles.speakingCard} ${styles.fadeIn} ${(exitingParticipants.includes(uid)) ? styles.fadeOut : styles.fadeIn}`}
+                style={{
+                  position: 'absolute',
+                  backgroundColor: convertUidToColor(uid),
+                  zIndex: `${500 - index}`,
+                  width: '100%',
+                  transform: `translate3d(0,${(Math.log10(index + 1) * 100) * 3}%,0) scale(${1 - (index / 10)})`,
+                  transition: '500ms'
+                }}>
+                {index === 0 && <h2 style={{
+                  position: 'absolute',
+                  right: '1em',
+                  top: '0em',
+                  color: 'inherit'
+                }}>{Math.floor((currentTime - queueTime) / 1000)}</h2>}
+
+                {index === 0 && user && user.uid && user.uid === room.owner && <IconButton
+                  style={{ position: 'absolute', right: '1em', bottom: '0em' }}
+                  onClick={dismissFirstSpeaker}
+                >
+                  <Icon path={mdiArrowDownRight} size={1} />
+                </IconButton>}
+
+                <h1>
+                  {ownUid && ownUid === uid ? 'you' : participantName}
+                </h1>
+                <p>{index === 0 ? (isMyself ? 'are speaking' : 'is speaking') : (index === 1 ? (isMyself ? 'are next' : 'is next') : 'after')}</p>
+              </div>
+            );
+
+          })}
+
+        </div>
       </div>
     </>
   );
 }
+

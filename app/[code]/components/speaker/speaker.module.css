@@ -1,13 +1,25 @@
 .speakingCard {
-    width: 80%;
+    /* width: 80%; */
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 5vmin 0;
     margin-bottom: 1em;
-    box-shadow: 10px 5px 15px rgba(0,0,0,0.5);
+    box-shadow: 10px 5px 15px rgba(0, 0, 0, 0.5);
     text-align: center;
+    overflow: hidden;
+}
+
+.speakingCard h1 {
+    white-space: nowrap;
+    font-size: 10vmin;
+    margin: 0;
+}
+
+.speakingCard p {
+    margin: 0;
+    font-size: large;
 }
 
 .fadeInUp {
@@ -18,7 +30,7 @@
     0% {
         opacity: 0;
         transform: translate3d(0, 100%, 0);
-        
+
     }
 
     100% {
@@ -34,10 +46,43 @@
 @keyframes fadeInAnimation {
     0% {
         opacity: 0;
-        
+
     }
 
     100% {
         opacity: 1;
+    }
+}
+
+.fadeOut {
+    animation: fadeOutAnimation 500ms;
+}
+
+@keyframes fadeOutAnimation {
+    0% {
+        opacity: 1;
+
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+
+.sizeUp {
+    animation: sizeUpAnimation 500ms;
+}
+
+@keyframes sizeUpAnimation {
+    0% {
+        transform: scale(0.8) translate3d(0, 100%, 0);
+        /* opacity: 0; */
+    }
+
+    100% {
+        transform: scale(1) translate3d(0, 0%, 0);
+        /* opacity: 1; */
     }
 }

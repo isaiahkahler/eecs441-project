@@ -56,7 +56,7 @@ export default function OwnerView(props: OwnerViewProps) {
     <>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         {/* the display of speakers */}
-        <div style={{ flexGrow: '1', height: '100v' }}>
+        <div style={{ flexGrow: '1', height: '100vh', display: 'flex', justifyContent: 'center' }}>
           <SpeakerView room={room} code={code} />
         </div>
         {/* show the leader board only if points are enabled */}
@@ -80,7 +80,8 @@ export default function OwnerView(props: OwnerViewProps) {
         top: '1em',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        zIndex: 550
       }}>
         {/* indicator for number of participants */}
         <IconButton style={{ padding: '0.25em 0.5em' }} onClick={() => setOpenModal(true)}>
