@@ -163,7 +163,7 @@ function EnterPasscodeView(props: EnterPasscodeViewProps) {
       <Container>
         <h1>enter the passcode</h1>
         <Input
-          type='text'
+          type='password'
           value={userInput}
           onChange={(e) => setUserInput((e.target as HTMLInputElement).value)}
           style={{ width: '100%' }}
