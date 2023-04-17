@@ -27,7 +27,8 @@ export interface Room {
   customReactions?: string,
   pointsEnabled?: true,
   points?: ParticipantPoints,
-  queueTime?: number
+  queueTime?: number,
+  participateAsHost?: boolean
 }
 
 export interface Participants {

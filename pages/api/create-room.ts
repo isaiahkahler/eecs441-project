@@ -76,7 +76,7 @@ export default async function handler(
     return;
   }
 
-  const { passcode, disableReactions, customReactions, pointsEnabled } = req.query;
+  const { passcode, disableReactions, customReactions, pointsEnabled, participateAsHost } = req.query;
   // console.log('===================================')
   // console.log('req.query', req.query)
   // console.log('===================================')
@@ -97,21 +97,24 @@ export default async function handler(
         owner: userToken.uid,
         expiration: Date.now() + (1000 * 60 * 60 * 24 * 2)
       }
-      if(passcode) {
+      if (passcode) {
         initialRoom.hasPasscode = true;
-      } 
-      if(disableReactions) {
+      }
+      if (disableReactions) {
         initialRoom.disableReactions = true;
       }
-      if(customReactions && !Array.isArray(customReactions)){
+      if (customReactions && !Array.isArray(customReactions)) {
         initialRoom.customReactions = customReactions;
       }
-      if(pointsEnabled){
+      if (pointsEnabled) {
         initialRoom.pointsEnabled = true;
+      }
+      if (participateAsHost) {
+        initialRoom.participateAsHost = true;
       }
       await set(ref(db as any, `rooms/${randomCode}`), initialRoom);
 
-      if(passcode) {
+      if (passcode) {
         // remove the hasPasscode value
         initialRoom.hasPasscode && delete initialRoom.hasPasscode;
         // get hash of room code + password

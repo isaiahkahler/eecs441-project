@@ -12,14 +12,13 @@ import styles from './speaker.module.css'
 
 interface SpeakerViewProps {
   room: Room,
-  participant?: User,
+  participantId?: string,
   code: string
 }
 
 export default function SpeakerView(props: SpeakerViewProps) {
-  const { room, code } = props;
+  const { room, code, participantId } = props;
   const { queue, participants, points } = room;
-  const ownUid = props.participant ? props.participant.uid : null;
   const database = getDatabase(app);
 
 
@@ -60,10 +59,6 @@ export default function SpeakerView(props: SpeakerViewProps) {
   }
 
   useEffect(() => {
-    console.log('exiting:', exitingParticipants)
-  }, [exitingParticipants])
-
-  useEffect(() => {
     function arrayEquals(a: [string, number][], b: [string, number][]) {
       return Array.isArray(a) &&
         Array.isArray(b) &&
@@ -81,8 +76,6 @@ export default function SpeakerView(props: SpeakerViewProps) {
 
     const newKeys = new Set(sortedQueue.map(item => item[0]));
     const deletedKeys = lastSortedQueue.map(item => item[0]).filter((uid) => !newKeys.has(uid));
-    // const names = deletedKeys.map(([uid]) => participants && uid in participants ? participants[uid] : '')
-    console.log('deleted names:', deletedKeys)
     if (deletedKeys.length === 0) {
       setLastSortedQueue(sortedQueue);
     } else {
@@ -100,7 +93,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
       return
     }
 
-    // console.log('update last person');
+    console.log('update last person', firstInLine && firstInLine[0]);
     setLastPerson(firstInLine);
     setLastQueueTime(queueTime);
     setCurrentTime(Date.now());
@@ -111,25 +104,25 @@ export default function SpeakerView(props: SpeakerViewProps) {
     if (firstInLine && lastPerson && firstInLine[0] == lastPerson[0] && firstInLine[1] == lastPerson[1]) {
       return
     }
-    if (lastPerson && lastPerson[0] === ownUid) {
+    if (lastPerson && lastPerson[0] === participantId) {
       // console.log(`you were at the top for ${queueTime - lastQueueTime}`)
       const timeDifference = queueTime - lastQueueTime;
       if (timeDifference > 5000) {
         setGainPoints(timeDifference);
       }
     }
-  }, [firstInLine, lastPerson, ownUid, queueTime, lastQueueTime])
+  }, [firstInLine, lastPerson, participantId, queueTime, lastQueueTime])
 
   // give the user points once
   useEffect(() => {
     if (!gainPoints) return;
-    if (!ownUid) return;
+    if (!participantId) return;
 
-    const currentPoints = points ? (ownUid in points ? points[ownUid] : 0) : 0;
+    const currentPoints = points ? (participantId in points ? points[participantId] : 0) : 0;
     // console.log('setting points! current:', currentPoints, 'new:', Math.floor(gainPoints / 1000))
-    set(ref(database, `rooms/${code}/points/${ownUid}`), currentPoints + Math.floor(gainPoints / 1000));
+    set(ref(database, `rooms/${code}/points/${participantId}`), currentPoints + Math.floor(gainPoints / 1000));
     setGainPoints(null);
-  }, [code, database, gainPoints, ownUid, points])
+  }, [code, database, gainPoints, participantId, points])
 
   // clear the first speaker if the admin clicks the dismiss button
   const dismissFirstSpeaker = () => {
@@ -162,7 +155,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
 
           {participants && Object.entries(participants).map(([uid, participantName]) => {
             const index = getQueuePosition(uid);
-            const isMyself = ownUid && ownUid === uid;
+            const isMyself = participantId && participantId === uid;
             if (index === -1 || index > 9) {
               return <></>;
             }
@@ -194,7 +187,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
                 </IconButton>}
 
                 <h1>
-                  {ownUid && ownUid === uid ? 'you' : participantName}
+                  {participantId && participantId === uid ? 'you' : participantName}
                 </h1>
                 <p>{index === 0 ? (isMyself ? 'are speaking' : 'is speaking') : (index === 1 ? (isMyself ? 'are next' : 'is next') : 'after')}</p>
               </div>

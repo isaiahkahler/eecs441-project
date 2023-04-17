@@ -33,6 +33,7 @@ export default function CreateRoom() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  const [participateAsHost, setParticipateAsHost] = useState(false);
   const [requirePasscode, setRequirePasscode] = useState(false);
   const [pointsEnabled, setPointsEnabled] = useState(false);
   const [disableReactions, setDisableReactions] = useState(false);
@@ -67,7 +68,8 @@ export default function CreateRoom() {
         passcode: requirePasscode && passcodeValue,
         disableReactions: disableReactions,
         customReactions: !disableReactions && customReactions && emojiList,
-        pointsEnabled: pointsEnabled
+        pointsEnabled: pointsEnabled,
+        participateAsHost: participateAsHost
       };
       const badKeys = Object.keys(options).filter((key) => !options[key]);
       for (const key of badKeys) {
@@ -103,6 +105,7 @@ export default function CreateRoom() {
 
           <h1>Create Your Room</h1>
           <hr />
+          <InputCheckbox label='Participate as host' checked={participateAsHost} onChange={e => setParticipateAsHost(e.currentTarget.checked)} />
           <InputCheckbox label='Require passcode to join' checked={requirePasscode} onChange={e => setRequirePasscode(e.currentTarget.checked)} />
           {requirePasscode && <div>
             <h3 style={{ display: 'inline', marginRight: '1rem' }}>passcode:</h3>

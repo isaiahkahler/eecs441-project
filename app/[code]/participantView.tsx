@@ -3,7 +3,7 @@ import Button from "@/components/ui/button";
 import Input, { InputInvalidMessage } from "@/components/ui/input";
 import { User } from "firebase/auth";
 import { getDatabase, ref, remove, set } from "firebase/database";
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { Room } from "./page";
 import EmojiMenu, { convertEmoji } from "@/components/ui/emoji";
 import Image from "next/image"
@@ -13,6 +13,7 @@ import ReactionsDisplay from "./components/reactions";
 import SpeakerView from "./components/speaker";
 import { profanity } from '@2toad/profanity';
 import styles from './participantView.module.css'
+import { RoomSummary } from "./ownerView";
 
 interface ParticipantViewProps {
   code: string,
@@ -26,14 +27,6 @@ export default function ParticipantView(props: ParticipantViewProps) {
   const database = getDatabase(app);
 
   const [name, setName] = useState<string | null>(null);
-
-  const [coolDown, setCoolDown] = useState(false);
-
-  let sortedQueue = room.queue ? Object.entries(room.queue)
-    .sort((a, b) => a[1] - b[1])
-    .filter(item => item !== undefined && item !== null) : [];
-
-  const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
 
   // get or change name from the list of participants, if the user already joined 
   useEffect(() => {
@@ -53,52 +46,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
     set(ref(database, `rooms/${code}/participants/${participant.uid}`), _name);
   };
 
-  const raiseHand = () => {
-    set(ref(database, `rooms/${code}/queue/${participant.uid}`), Date.now());
 
-    // set queue time if they are the first in the queue (variable tracks how long someone is at the top)
-    if (!room.queue) {
-      set(ref(database, `rooms/${code}/queueTime`), Date.now());
-    }
-  }
 
-  const lowerHand = () => {
-    // remove from queue
-    remove(ref(database, `rooms/${code}/queue/${participant.uid}`));
-    // set queueTime (variable tracks how long someone is at the top)
-    if (firstInLine && firstInLine[0] === participant.uid) {
-      set(ref(database, `rooms/${code}/queueTime`), Date.now());
-    }
-    setCoolDown(true);
-    setTimeout(() => setCoolDown(false), 3000);
-  }
-
-  const raiseLowerHand = () => {
-    // no queue exists, user wants to raise hand
-    if (!room.queue) {
-      raiseHand();
-      return;
-    }
-
-    // participant is in queue, lower hand
-    if (participant.uid in room.queue) {
-      lowerHand();
-    } else {
-      // participant is not in queue, add to queue 
-      raiseHand();
-    }
-  }
-
-  const handleReactionClick = (emoji: string) => {
-    (async () => {
-      // console.log(emoji);
-      const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
-      set(ref(database, reactionPath), emoji);
-
-      setTimeout(() => {
-        remove(ref(database, reactionPath));
-      }, 5000);
-    })();
+  if (room.ended) {
+    return <RoomSummary room={room} code={code} />
   }
 
 
@@ -113,22 +64,10 @@ export default function ParticipantView(props: ParticipantViewProps) {
 
     <>
       <div className={styles.participantView}>
-        <SpeakerView room={room} participant={participant} code={code} />
+        <SpeakerView room={room} participantId={participant ? participant.uid : undefined} code={code} />
 
 
-        <div className={styles.controlsContainer}>
-          <button className={styles.raiseLowerButton}
-            disabled={coolDown}
-            onClick={raiseLowerHand}
-          >
-            <Image src={room.queue && participant.uid in room.queue ? convertEmoji("🙇") : convertEmoji("🙋")} width={75} height={75} alt='raise or lower hand'></Image>
-            <p className={styles.raiseLowerText}>{room.queue && participant.uid in room.queue ? 'lower hand' : 'raise hand'}</p>
-            <div className={`${styles.raiseLowerCoolDownOverlay} ${coolDown ? styles.raiseLowerCoolDownOverlayAnimation : ''}`} />
-          </button>
-          {!room.disableReactions && <EmojiMenu emojis={room.customReactions ? room.customReactions.split(',') : ['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleReactionClick} />}
-
-          {room.pointsEnabled && participant.uid && <PointsMessage room={room} uid={participant.uid} /> }
-        </div>
+        <ParticipantControls room={room} code={code} participantId={participant.uid} />
       </div>
 
       {reactions && <ReactionsDisplay reactions={reactions} />}
@@ -148,11 +87,16 @@ function PointsMessage(props: PointsMessage) {
   const sortedPoints = room.points ? Object.entries(room.points).sort((a, b) => a[1] - b[1]) : [];
   const myIndex = sortedPoints.findIndex(element => element[0] == uid);
   let tag = '';
-  if(myIndex + 1 < sortedPoints.length && myIndex !== -1 && room.participants) {
-    if(sortedPoints[myIndex + 1][1] === sortedPoints[myIndex][1]){
+  if(myIndex === -1) {
+    return (
+      <p>You have {room.points ? (uid in room.points ? room.points[uid] : 0) : 0} points. {tag}</p>
+    );
+  }
+  if (myIndex + 1 < sortedPoints.length && myIndex !== -1 && room.participants) {
+    if (sortedPoints[myIndex + 1][1] === sortedPoints[myIndex][1]) {
       tag = ` You're tied with ${room.participants[sortedPoints[myIndex + 1][0]]}!`
     } else {
-      tag = `You're ${sortedPoints[myIndex+1][1] - sortedPoints[myIndex][1]} points behind ${room.participants[sortedPoints[myIndex + 1][0]]}!`
+      tag = `You're ${sortedPoints[myIndex + 1][1] - sortedPoints[myIndex][1]} points behind ${room.participants[sortedPoints[myIndex + 1][0]]}!`
     }
   } else if (myIndex + 1 === sortedPoints.length) {
     tag = `You have the highest score!`
@@ -171,7 +115,7 @@ interface EnterNameFormProps {
 }
 
 // todo: validate that the name isn't appropriate and isn't yet taken 
-function EnterNameForm(props: EnterNameFormProps) {
+export function EnterNameForm(props: EnterNameFormProps) {
   const [userInput, setUserInput] = useState('');
   const [hasProfanityError, setHasProfanityError] = useState(false);
   const [hasDuplicateError, setHasDuplicateError] = useState(false);
@@ -241,5 +185,89 @@ function WaitingRoom(props: ParticipantViewProps) {
 
       </Container>
     </Layout>
+  );
+}
+
+interface ParticipantControlsProps {
+  room: Room,
+  code: string,
+  participantId: string
+}
+
+export function ParticipantControls(props: PropsWithChildren<ParticipantControlsProps>) {
+  const { room, code, participantId, children } = props;
+
+  const [coolDown, setCoolDown] = useState(false);
+  const database = getDatabase(app);
+
+  let sortedQueue = room.queue ? Object.entries(room.queue)
+    .sort((a, b) => a[1] - b[1])
+    .filter(item => item !== undefined && item !== null) : [];
+
+  const firstInLine = sortedQueue.length > 0 ? sortedQueue[0] : null;
+
+  const raiseHand = () => {
+    set(ref(database, `rooms/${code}/queue/${participantId}`), Date.now());
+
+    // set queue time if they are the first in the queue (variable tracks how long someone is at the top)
+    if (!room.queue) {
+      set(ref(database, `rooms/${code}/queueTime`), Date.now());
+    }
+  }
+
+  const lowerHand = () => {
+    // remove from queue
+    remove(ref(database, `rooms/${code}/queue/${participantId}`));
+    // set queueTime (variable tracks how long someone is at the top)
+    if (firstInLine && firstInLine[0] === participantId) {
+      set(ref(database, `rooms/${code}/queueTime`), Date.now());
+    }
+    setCoolDown(true);
+    setTimeout(() => setCoolDown(false), 2000);
+  }
+
+  const raiseLowerHand = () => {
+    // no queue exists, user wants to raise hand
+    if (!room.queue) {
+      raiseHand();
+      return;
+    }
+
+    // participant is in queue, lower hand
+    if (participantId in room.queue) {
+      lowerHand();
+    } else {
+      // participant is not in queue, add to queue 
+      raiseHand();
+    }
+  }
+
+  const handleReactionClick = (emoji: string) => {
+    (async () => {
+      // console.log(emoji);
+      const reactionPath = `rooms/${code}/reactions/${Date.now()}`;
+      set(ref(database, reactionPath), emoji);
+
+      setTimeout(() => {
+        remove(ref(database, reactionPath));
+      }, 5000);
+    })();
+  }
+
+  return (
+    <div className={styles.controlsContainer}>
+      <button className={styles.raiseLowerButton}
+        disabled={coolDown}
+        onClick={raiseLowerHand}
+      >
+        <Image src={room.queue && participantId in room.queue ? convertEmoji("🙇") : convertEmoji("🙋")} width={75} height={75} alt='raise or lower hand'></Image>
+        <p className={styles.raiseLowerText}>{room.queue && participantId in room.queue ? 'lower hand' : 'raise hand'}</p>
+        <div className={`${styles.raiseLowerCoolDownOverlay} ${coolDown ? styles.raiseLowerCoolDownOverlayAnimation : ''}`} />
+      </button>
+      {!room.disableReactions && <EmojiMenu emojis={room.customReactions ? room.customReactions.split(',') : ['👏', '🔥', '🤔', '😲', '🤣']} onEmojiClick={handleReactionClick} />}
+
+      {room.pointsEnabled && participantId && <PointsMessage room={room} uid={participantId} />}
+      {children}
+    </div>
   );
 }

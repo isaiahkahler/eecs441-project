@@ -41,7 +41,7 @@
 }
 
 .raiseLowerCoolDownOverlayAnimation{
-  animation: flattenAnimation 3s linear;
+  animation: flattenAnimation 2000ms linear;
 }
 
 .instructionBlock {

@@ -6,13 +6,14 @@ import Container from "@/components/ui/container";
 import { getDatabase, ref, remove, set } from "firebase/database";
 import { app } from "@/components/data/firebase";
 import { getLightColor } from "@/components/ui/colors";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from './ownerView.module.css';
 import Icon from "@mdi/react";
 import { mdiAccountGroup, mdiClose, mdiExitToApp, mdiEyeOff, mdiNotificationClearAll } from "@mdi/js";
 import ReactionsDisplay from "./components/reactions";
 import SpeakerView from "./components/speaker";
 import { useStore } from "@/components/data/store";
+import { EnterNameForm, ParticipantControls } from "./participantView";
 
 interface OwnerViewProps {
   code: string,
@@ -28,6 +29,27 @@ export default function OwnerView(props: OwnerViewProps) {
   const [confirmDismiss, setConfirmDismiss] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+
+  const [name, setName] = useState<string | null>(null);
+
+  // get or change name from the list of participants, if the user already joined 
+  useEffect(() => {
+    if (!room.participants) {
+      setName(null);
+      return;
+    };
+    if (room.owner in room.participants) {
+      setName(room.participants[room.owner]);
+    } else {
+      setName(null);
+    }
+  }, [room, room.owner]);
+
+    // function that adds the participant to the room once they have entered a name
+    const setHostName = (_name: string) => {
+      set(ref(database, `rooms/${code}/participants/${room.owner}`), _name);
+    };
+
   if (room.ended) {
     return <RoomSummary room={room} code={code} />
   }
@@ -35,6 +57,12 @@ export default function OwnerView(props: OwnerViewProps) {
   if (!room.started) {
     return <WaitingRoom {...props} />
   }
+
+  // prompt the user to enter a name if they don't have one
+  if (!name) {
+    return <EnterNameForm setParticipantName={setHostName} room={room} />
+  };
+
 
   // clear all the participants if the clear all button is clicked
   const dismissAll = () => {
@@ -57,7 +85,7 @@ export default function OwnerView(props: OwnerViewProps) {
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         {/* the display of speakers */}
         <div style={{ flexGrow: '1', height: '100vh', display: 'flex', justifyContent: 'center' }}>
-          <SpeakerView room={room} code={code} />
+          <SpeakerView room={room} code={code} participantId={room.participateAsHost ? room.owner : undefined} />
         </div>
         {/* show the leader board only if points are enabled */}
         {room.pointsEnabled && <div className={styles.pointsMenu}>
@@ -66,7 +94,7 @@ export default function OwnerView(props: OwnerViewProps) {
       </div>
 
       {/* join code at the bottom */}
-      <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{displayCode}</strong></h2>
+      {!room.participateAsHost && <h2 style={{ position: 'fixed', bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502 }}>Join at SpeakUp.fyi/<strong>{displayCode}</strong></h2>}
 
       {/* qr code in bottom right */}
       <span className={styles.qrCode}>
@@ -104,6 +132,11 @@ export default function OwnerView(props: OwnerViewProps) {
           <Icon path={mdiExitToApp} size={1.5} />
         </IconButton>
       </span>
+
+      {/* if the host is participating, show the controls */}
+      {room.participateAsHost && <ParticipantControls code={code} participantId={room.owner} room={room} >
+      <h2 style={{  bottom: 0, textAlign: 'center', width: '100vw', zIndex: 502, marginTop: 0 }}>Join at SpeakUp.fyi/<strong>{displayCode}</strong></h2>
+      </ParticipantControls>}
 
       {/* floating reactions */}
       {reactions && <ReactionsDisplay reactions={reactions} />}
@@ -197,7 +230,7 @@ interface RoomSummaryProps {
   code: string
 }
 
-function RoomSummary(props: RoomSummaryProps) {
+export function RoomSummary(props: RoomSummaryProps) {
   const { room, code } = props;
   return (
     <Layout>
@@ -210,7 +243,7 @@ function RoomSummary(props: RoomSummaryProps) {
         <hr />
 
         <h2>participants:</h2>
-        <ParticipantList room={room} code={code} />
+        <ParticipantList room={room} code={code} disableKick />
 
         {room.points && <LeaderBoard room={room} />}
 
@@ -219,8 +252,8 @@ function RoomSummary(props: RoomSummaryProps) {
   );
 }
 
-function ParticipantList(props: { code: string, room: Room }) {
-  const { code, room } = { ...props };
+function ParticipantList(props: { code: string, room: Room, disableKick?: boolean }) {
+  const { code, room, disableKick } = { ...props };
   const [kickConfirm, setKickConfirm] = useState<string | null>();
   const database = getDatabase(app);
 
@@ -254,7 +287,7 @@ function ParticipantList(props: { code: string, room: Room }) {
       }}>
         {room.participants && Object.entries(room.participants).map(([id, name], index) =>
           <span key={id} style={{ margin: '0 .5em' }}>
-            <Button onClick={() => handleKickParticipant(id)} style={{ backgroundColor: convertUidToColor(id) }}>
+            <Button onClick={() => handleKickParticipant(id)} style={{ backgroundColor: convertUidToColor(id) }} disabled={disableKick}>
               <h3 className={kickConfirm === id ? styles.fadeOut : ''} style={{ color: "#000" }}>{kickConfirm === id ? 'click again to kick' : name}</h3>
             </Button>
           </span>
