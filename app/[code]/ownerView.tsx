@@ -54,15 +54,14 @@ export default function OwnerView(props: OwnerViewProps) {
     return <RoomSummary room={room} code={code} />
   }
 
-  if (!room.started) {
-    return <WaitingRoom {...props} />
-  }
-
   // prompt the user to enter a name if they don't have one
   if (!name) {
     return <EnterNameForm setParticipantName={setHostName} room={room} />
   };
 
+  if (!room.started) {
+    return <WaitingRoom {...props} />
+  }
 
   // clear all the participants if the clear all button is clicked
   const dismissAll = () => {

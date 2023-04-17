@@ -189,7 +189,7 @@ export default function SpeakerView(props: SpeakerViewProps) {
                 <h1>
                   {participantId && participantId === uid && participantId !== room.owner ? 'you' : participantName}
                 </h1>
-                <p>{index === 0 ? (isMyself ? 'are speaking' : 'is speaking') : (index === 1 ? (isMyself ? 'are next' : 'is next') : 'after')}</p>
+                <p>{index === 0 ? (isMyself && participantId !== room.owner ? 'are speaking' : 'is speaking') : (index === 1 ? (isMyself && participantId !== room.owner ? 'are next' : 'is next') : 'after')}</p>
               </div>
             );
 
