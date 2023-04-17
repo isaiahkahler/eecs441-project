@@ -153,6 +153,12 @@ export default function SpeakerView(props: SpeakerViewProps) {
           margin: '0 1rem'
         }}>
 
+          {!room.queue && <div className={`${styles.speakingCard} ${styles.fadeIn}`} style={{ boxShadow: 'none', border: '1px solid #aaa' }}>
+            <span><h1 style={{fontSize: '2rem'}}>The Queue is Empty</h1></span>
+            <h2>Raise your hand to join</h2>
+          </div>}
+
+
           {participants && Object.entries(participants).map(([uid, participantName]) => {
             const index = getQueuePosition(uid);
             const isMyself = participantId && participantId === uid;
